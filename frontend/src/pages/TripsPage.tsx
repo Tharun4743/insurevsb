@@ -96,7 +96,7 @@ export default function TripsPage() {
                       {trip.latest_assessment?.score != null ? `${trip.latest_assessment.score}/100` : '—'}
                     </td>
                     <td className="table-td text-emerald-700 font-semibold">
-                      {trip.latest_quote?.illustrative_estimate ? `£${trip.latest_quote.illustrative_estimate}` : '—'}
+                      {trip.latest_quote?.illustrative_estimate ? `₹${trip.latest_quote.illustrative_estimate}` : '—'}
                     </td>
                     <td className="table-td">
                       {trip.review_case ? <StatusBadge status={trip.review_case.status} /> : <span className="text-slate-300">—</span>}

@@ -5,16 +5,16 @@ import { Menu, Bell, Sun, Download, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const PAGE_METADATA: Record<string, { title: string; subtitle: string }> = {
-  '/':            { title: 'Dashboard', subtitle: 'VSBEC IT VAULT' },
-  '/admin':       { title: 'Admin Portfolio', subtitle: 'INSURE GOVERNANCE VAULT' },
-  '/compliance':  { title: 'Compliance Center', subtitle: 'FAIRNESS & DISPUTE VAULT' },
-  '/simulator':   { title: 'Tasks & Simulator', subtitle: 'TELEMATICS INGESTION HUB' },
-  '/trips':       { title: 'Coding & Trips', subtitle: 'BEHAVIOURAL DATA PIPELINE' },
-  '/consent':     { title: 'Notice & Consent', subtitle: 'DATA PRIVACY & PERMISSIONS' },
-  '/assessments': { title: 'Skill Assessment', subtitle: 'DEFENSIVE DRIVER METRICS' },
-  '/review':      { title: 'Review Center', subtitle: 'UNDERWRITING QUEUE' },
-  '/audit':       { title: 'Skill Heatmap & Audit', subtitle: 'SYSTEM AUDIT LOGS' },
-  '/profitability':{ title: 'Industry Partners & Profitability', subtitle: 'PORTFOLIO ECONOMICS' },
+  '/':             { title: 'Telematics Dashboard', subtitle: 'BEHAVIOURAL PRICING & TRIPS OVERVIEW' },
+  '/admin':        { title: 'Admin Portfolio', subtitle: 'INSURE GOVERNANCE & ACTUARIAL RULES' },
+  '/compliance':   { title: 'Compliance Center', subtitle: 'MODEL FAIRNESS & CUSTOMER DISPUTES' },
+  '/simulator':    { title: 'IoT Driving Simulator', subtitle: 'SYNTHETIC TELEMATICS INGESTION ENGINE' },
+  '/trips':        { title: 'Trip Telematics', subtitle: 'RAW MEASUREMENTS & SENSOR LOGS' },
+  '/consent':      { title: 'Privacy & Consent', subtitle: 'DATA ACCESS & SOVEREIGN DRIVER PERMISSIONS' },
+  '/assessments':  { title: 'Risk Assessments', subtitle: 'EXPLAINABLE 5-FACTOR SCORING ENGINE' },
+  '/review':       { title: 'Underwriting Review', subtitle: 'HUMAN-IN-THE-LOOP AUDIT QUEUE' },
+  '/audit':        { title: 'Compliance Audit Trail', subtitle: 'IMMUTABLE EVENT CHRONOLOGY' },
+  '/profitability':{ title: 'Portfolio Growth & Economics', subtitle: 'UNDERWRITING PROFITABILITY SIMULATOR' },
 };
 
 function getHeaderMeta(path: string) {
@@ -22,7 +22,7 @@ function getHeaderMeta(path: string) {
   for (const [key, val] of Object.entries(PAGE_METADATA)) {
     if (key !== '/' && path.startsWith(key)) return val;
   }
-  return { title: 'Dashboard', subtitle: 'VSBEC IT VAULT' };
+  return { title: 'Telematics Dashboard', subtitle: 'BEHAVIOURAL PRICING & TRIPS OVERVIEW' };
 }
 
 export default function AppShell() {

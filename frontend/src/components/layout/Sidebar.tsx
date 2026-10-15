@@ -3,23 +3,16 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
   LayoutDashboard,
-  CheckSquare,
-  Code,
-  FileText,
+  Car,
+  Activity,
   Award,
   TrendingUp,
-  Radio,
-  Flame,
-  Briefcase,
-  Users,
-  UserCheck,
+  ShieldCheck,
   ShieldAlert,
+  UserCheck,
+  FileText,
   LogOut,
   ChevronRight,
-  ShieldCheck,
-  Activity,
-  Gauge,
-  ClipboardList,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -37,34 +30,32 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     navigate('/login');
   };
 
-  // Nav items tailored to role, each with its signature color matching the screenshot
+  // Dedicated InsurTech & IoT Telematics navigation modules
   const customerNavItems = [
-    { to: '/',              icon: LayoutDashboard, label: 'Dashboard',         iconColor: 'text-slate-900' },
-    { to: '/simulator',     icon: CheckSquare,     label: 'Tasks & Sim',       iconColor: 'text-blue-500' },
-    { to: '/trips',         icon: Code,            label: 'Coding Progress',   iconColor: 'text-amber-500' },
-    { to: '/consent',       icon: FileText,        label: 'Notice Board',      iconColor: 'text-rose-500' },
-    { to: '/assessments',   icon: Award,           label: 'Skill Assessment',  iconColor: 'text-purple-500' },
-    { to: '/trips',         icon: TrendingUp,      label: 'Placement Rating',  iconColor: 'text-cyan-500' },
-    { to: '/simulator',     icon: Radio,           label: 'Live Teaching Hub', iconColor: 'text-emerald-500' },
-    { to: '/audit',         icon: Flame,           label: 'Skill Heatmap',     iconColor: 'text-pink-500' },
-    { to: '/profitability', icon: Briefcase,       label: 'Industry Partners', iconColor: 'text-teal-500' },
-    { to: '/review',        icon: Users,           label: 'Classes & Review',  iconColor: 'text-indigo-500' },
+    { to: '/',              icon: LayoutDashboard, label: 'Dashboard',               iconColor: 'text-slate-900' },
+    { to: '/trips',         icon: Car,             label: 'Trip Telematics',         iconColor: 'text-blue-500' },
+    { to: '/simulator',     icon: Activity,        label: 'IoT Driving Simulator',   iconColor: 'text-emerald-500' },
+    { to: '/assessments',   icon: Award,           label: 'Risk Assessments',        iconColor: 'text-purple-500' },
+    { to: '/consent',       icon: ShieldCheck,     label: 'Privacy & Consent',       iconColor: 'text-rose-500' },
+    { to: '/review',        icon: UserCheck,       label: 'Underwriting Review',     iconColor: 'text-indigo-500' },
+    { to: '/profitability', icon: TrendingUp,      label: 'Portfolio Growth',        iconColor: 'text-amber-500' },
+    { to: '/audit',         icon: FileText,        label: 'Compliance Audit Trail',  iconColor: 'text-pink-500' },
   ];
 
   const adminNavItems = [
-    { to: '/admin',         icon: LayoutDashboard, label: 'Dashboard',         iconColor: 'text-slate-900' },
-    { to: '/simulator',     icon: CheckSquare,     label: 'Tasks & Sim',       iconColor: 'text-blue-500' },
-    { to: '/profitability', icon: Briefcase,       label: 'Industry Partners', iconColor: 'text-teal-500' },
-    { to: '/trips',         icon: Code,            label: 'Telematics Hub',    iconColor: 'text-amber-500' },
-    { to: '/audit',         icon: Flame,           label: 'Audit History',     iconColor: 'text-pink-500' },
+    { to: '/admin',         icon: LayoutDashboard, label: 'Admin Portfolio',         iconColor: 'text-slate-900' },
+    { to: '/trips',         icon: Car,             label: 'Fleet Telematics',        iconColor: 'text-blue-500' },
+    { to: '/simulator',     icon: Activity,        label: 'IoT Simulator',           iconColor: 'text-emerald-500' },
+    { to: '/profitability', icon: TrendingUp,      label: 'Underwriting Economics',  iconColor: 'text-amber-500' },
+    { to: '/audit',         icon: FileText,        label: 'Audit Trail',             iconColor: 'text-pink-500' },
   ];
 
   const complianceNavItems = [
-    { to: '/compliance',    icon: LayoutDashboard, label: 'Dashboard',         iconColor: 'text-slate-900' },
-    { to: '/review',        icon: ShieldAlert,     label: 'Dispute Queue',     iconColor: 'text-emerald-500' },
-    { to: '/assessments',   icon: Award,           label: 'Skill Assessment',  iconColor: 'text-purple-500' },
-    { to: '/audit',         icon: Flame,           label: 'Fairness Audits',   iconColor: 'text-pink-500' },
-    { to: '/consent',       icon: FileText,        label: 'Consent Registry',  iconColor: 'text-rose-500' },
+    { to: '/compliance',    icon: LayoutDashboard, label: 'Compliance Overview',     iconColor: 'text-slate-900' },
+    { to: '/review',        icon: ShieldAlert,     label: 'Disputes & Reviews',      iconColor: 'text-emerald-500' },
+    { to: '/assessments',   icon: Award,           label: 'Risk Scoring Audits',     iconColor: 'text-purple-500' },
+    { to: '/consent',       icon: ShieldCheck,     label: 'Consent Governance',      iconColor: 'text-rose-500' },
+    { to: '/audit',         icon: FileText,        label: 'Fairness Audit Log',      iconColor: 'text-pink-500' },
   ];
 
   const activeNavList =
@@ -98,15 +89,17 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       >
         {/* Brand Header */}
         <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-100">
-          <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-sm flex-shrink-0 tracking-wider">
-            IT
-          </div>
+          <img
+            src="/logo-shield.png"
+            alt="INSURE Logo"
+            className="w-10 h-10 object-contain flex-shrink-0 drop-shadow-xs"
+          />
           <div className="min-w-0">
-            <h2 className="text-[15px] font-bold text-slate-800 tracking-tight leading-none">
-              IT Vault
+            <h2 className="text-[16px] font-extrabold text-slate-800 tracking-tight leading-none">
+              INSURE
             </h2>
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-1">
-              {role === 'admin' ? 'ADMIN PORTAL' : role === 'compliance_officer' ? 'COMPLIANCE PORTAL' : 'HOD PORTAL'}
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">
+              {role === 'admin' ? 'ADMIN PORTAL' : role === 'compliance_officer' ? 'COMPLIANCE PORTAL' : 'POLICYHOLDER PORTAL'}
             </p>
           </div>
         </div>

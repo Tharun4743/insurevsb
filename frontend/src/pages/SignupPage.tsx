@@ -74,9 +74,11 @@ export default function SignupPage() {
       <div className="w-full max-w-lg">
         {/* Brand Header */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-slate-900 text-white font-bold text-lg shadow-sm mb-3">
-            IN
-          </div>
+          <img
+            src="/logo-shield.png"
+            alt="INSURE Logo"
+            className="w-16 h-16 object-contain mx-auto mb-3 drop-shadow-xs"
+          />
           <h1 className="text-2xl font-extrabold text-slate-800 tracking-tight">Create Customer Account</h1>
           <p className="text-xs font-semibold text-slate-400 tracking-wider uppercase mt-1">
             Fair, Consented Behavioural Insurance Pricing
@@ -124,7 +126,7 @@ export default function SignupPage() {
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
               />
               <p className="text-[11px] text-slate-400 mt-1">
-                A 6-digit verification code will be sent to this email via Brevo SMTP.
+                A 6-digit verification code will be sent to this email.
               </p>
             </div>
 

@@ -53,6 +53,18 @@ export const withdrawConsent= () => api.post('/consent/withdraw').then(r => r.da
 export const getScenarios   = () => api.get('/simulator/scenarios').then(r => r.data);
 export const runSimulation  = (scenario: string, reading_count: number) =>
   api.post('/simulator/run', { scenario, reading_count }).then(r => r.data);
+export const startSimulationSession = (scenario: string, reading_count: number, vehicle_id?: string) =>
+  api.post('/simulator/session/start', { scenario, reading_count, vehicle_id }).then(r => r.data);
+export const pauseSimulationSession = (session_id: string) =>
+  api.post('/simulator/session/pause', { session_id }).then(r => r.data);
+export const resumeSimulationSession = (session_id: string) =>
+  api.post('/simulator/session/resume', { session_id }).then(r => r.data);
+export const stopSimulationSession = (session_id: string) =>
+  api.post('/simulator/session/stop', { session_id }).then(r => r.data);
+export const resetSimulationSession = (session_id: string) =>
+  api.post('/simulator/session/reset', { session_id }).then(r => r.data);
+export const getSimulationSession = (session_id: string) =>
+  api.get(`/simulator/session/${session_id}`).then(r => r.data);
 
 // ── Trips ─────────────────────────────────────────────────────────────────────
 export const getTrips       = (limit = 50) => api.get(`/trips?limit=${limit}`).then(r => r.data);
@@ -151,6 +163,7 @@ export const updateAdminPricingConfig = (data: {
 // ── Pricing & Compliance Officer Overview & Disputes ──────────────────────────
 export const getComplianceOverview = () => api.get('/compliance/overview').then(r => r.data);
 export const getComplianceDisputes = () => api.get('/compliance/disputes').then(r => r.data);
+export const getComplianceFairness = () => api.get('/compliance/fairness').then(r => r.data);
 export const submitComplianceDecision = (
   disputeId: string,
   data: { decision: 'resolved' | 'rejected' | 'under_investigation'; explanation: string }

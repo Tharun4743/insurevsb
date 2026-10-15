@@ -99,12 +99,12 @@ CREATE TABLE IF NOT EXISTS quotes (
     assessment_id UUID REFERENCES risk_assessments(id) ON DELETE CASCADE,
     user_id UUID NOT NULL,
     illustrative_estimate NUMERIC(8, 2),
-    base_premium NUMERIC(8, 2) NOT NULL DEFAULT 100.00,
+    base_premium NUMERIC(8, 2) NOT NULL DEFAULT 2000.00,
     risk_adjustment NUMERIC(8, 2),
     risk_adjustment_pct NUMERIC(5, 2),
-    status TEXT NOT NULL CHECK (status IN ('generated', 'review_required')),
+    status TEXT NOT NULL CHECK (status IN ('generated', 'review_required', 'provisional_default', 'dispute_resolved')),
     rule_version TEXT NOT NULL DEFAULT 'v1.0.0',
-    currency TEXT NOT NULL DEFAULT 'GBP',
+    currency TEXT NOT NULL DEFAULT 'INR',
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_quotes_user ON quotes(user_id, created_at DESC);

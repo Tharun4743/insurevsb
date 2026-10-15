@@ -1,19 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { login as apiLogin, getAuthAccounts } from '../api/client';
+import { login as apiLogin } from '../api/client';
 import { useAuth } from '../context/AuthContext';
-import {
-  Shield, Eye, EyeOff, ArrowRight, AlertCircle,
-  UserCheck, ShieldAlert, Car, CheckCircle2, Zap
-} from 'lucide-react';
-
-interface SupabaseAccount {
-  id: string;
-  email: string;
-  full_name: string;
-  role: 'customer' | 'admin' | 'compliance_officer';
-  status: string;
-}
+import { Shield, Eye, EyeOff, ArrowRight, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -24,35 +13,11 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [quickLoggingIn, setQuickLoggingIn] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
 
-  // Live Supabase Accounts loaded directly from database
-  const [liveAccounts, setLiveAccounts] = useState<SupabaseAccount[]>([]);
-  const [loadingAccounts, setLoadingAccounts] = useState(true);
-
   // Return to location if redirected by protected route
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
-
-  useEffect(() => {
-    let isMounted = true;
-    getAuthAccounts()
-      .then(res => {
-        if (isMounted && res?.accounts) {
-          setLiveAccounts(res.accounts);
-        }
-      })
-      .catch(err => {
-        console.warn('Failed to fetch accounts from Supabase:', err);
-      })
-      .finally(() => {
-        if (isMounted) setLoadingAccounts(false);
-      });
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const performLogin = async (targetEmail: string, targetPass: string, defaultRoute?: string) => {
     setError(null);
@@ -104,111 +69,27 @@ export default function LoginPage() {
     }
   };
 
-  // Dynamic Role Cards derived strictly from Supabase users
-  const quickRoles = liveAccounts.map(account => {
-    const isCustomer = account.role === 'customer';
-    const isAdmin = account.role === 'admin';
-    const isCompliance = account.role === 'compliance_officer';
-
-    return {
-      key: account.id || account.email,
-      role: account.role,
-      title: isAdmin ? 'Insurance Admin' : isCompliance ? 'Compliance Officer' : 'Customer',
-      badge: isAdmin ? 'Executive' : isCompliance ? 'Auditor' : 'Policyholder',
-      email: account.email,
-      fullName: account.full_name || account.email,
-      route: isAdmin ? '/admin' : isCompliance ? '/compliance' : '/',
-      icon: isAdmin ? UserCheck : isCompliance ? ShieldAlert : Car,
-      color: isAdmin
-        ? 'text-emerald-800 bg-emerald-50 border-emerald-200 hover:bg-emerald-100/70'
-        : isCompliance
-        ? 'text-purple-800 bg-purple-50 border-purple-200 hover:bg-purple-100/70'
-        : 'text-blue-700 bg-blue-50 border-blue-200 hover:bg-blue-100/70',
-      iconBg: isAdmin ? 'bg-emerald-600 text-white' : isCompliance ? 'bg-indigo-600 text-white' : 'bg-blue-600 text-white',
-    };
-  });
-
-  const handleQuickSelect = async (roleObj: (typeof quickRoles)[0]) => {
-    setEmail(roleObj.email);
-    setPassword('123456');
-    setQuickLoggingIn(roleObj.key);
-    try {
-      await performLogin(roleObj.email, '123456', roleObj.route);
-    } catch {
-      // Handled in performLogin
-    } finally {
-      setQuickLoggingIn(null);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 py-8">
-      <div className="w-full max-w-lg">
+      <div className="w-full max-w-md">
         {/* Brand Header */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-slate-900 text-white font-bold text-lg shadow-sm mb-3">
-            IT
-          </div>
-          <h1 className="text-2xl font-extrabold text-slate-800 tracking-tight">IT Vault — INSURE</h1>
+          <img
+            src="/logo-shield.png"
+            alt="INSURE Logo"
+            className="w-16 h-16 object-contain mx-auto mb-3 drop-shadow-xs"
+          />
+          <h1 className="text-2xl font-extrabold text-slate-800 tracking-tight">INSURE</h1>
           <p className="text-xs font-semibold text-slate-400 tracking-wider uppercase mt-1">
             Consented Telematics & Fair Pricing Platform
           </p>
-        </div>
-
-        {/* ── EASY ONE-CLICK QUICK ROLE LOGIN (Loaded live from Supabase) ── */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 mb-5">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5 text-amber-500" />
-              Easy Role Selection & Login (Password: 123456)
-            </span>
-            <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-              Live from Supabase
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            {quickRoles.map(r => {
-              const Icon = r.icon;
-              const isSelected = quickLoggingIn === r.key;
-              return (
-                <button
-                  key={r.key}
-                  type="button"
-                  onClick={() => handleQuickSelect(r)}
-                  disabled={submitting || quickLoggingIn !== null}
-                  className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between cursor-pointer ${r.color} ${
-                    isSelected ? 'ring-2 ring-emerald-500 scale-95 opacity-80' : ''
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center shadow-2xs ${r.iconBg}`}>
-                      <Icon className="w-3.5 h-3.5" />
-                    </div>
-                    <span className="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-sm bg-white/80">
-                      {r.badge}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-slate-800 leading-tight">{r.title}</p>
-                    <p className="text-[10px] text-slate-500 truncate mt-0.5" title={r.email}>
-                      {r.email}
-                    </p>
-                    <p className="text-[10px] font-semibold text-emerald-600 mt-1">
-                      {isSelected ? 'Authenticating…' : 'One-Click Login →'}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
         </div>
 
         {/* Credentials Form Card */}
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 sm:p-8">
           <h2 className="text-lg font-bold text-slate-800 mb-1">Sign In to Your Account</h2>
           <p className="text-xs text-slate-500 mb-6">
-            Enter your credentials or choose a quick role button above.
+            Enter your registered email and password to access your role portal.
           </p>
 
           {error && (
@@ -285,10 +166,10 @@ export default function LoginPage() {
             <button
               id="login-submit-btn"
               type="submit"
-              disabled={submitting || quickLoggingIn !== null}
+              disabled={submitting}
               className="w-full mt-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-semibold py-2.5 px-4 rounded-xl shadow-sm flex items-center justify-center gap-2 transition-all text-sm cursor-pointer"
             >
-              {submitting || quickLoggingIn ? (
+              {submitting ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   <span>Signing In…</span>

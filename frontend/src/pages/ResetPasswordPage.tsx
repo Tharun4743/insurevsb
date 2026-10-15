@@ -54,9 +54,11 @@ export default function ResetPasswordPage() {
       <div className="w-full max-w-md">
         {/* Brand Header */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-slate-900 text-white font-bold text-lg shadow-sm mb-3">
-            IN
-          </div>
+          <img
+            src="/logo-shield.png"
+            alt="INSURE Logo"
+            className="w-16 h-16 object-contain mx-auto mb-3 drop-shadow-xs"
+          />
           <h1 className="text-2xl font-extrabold text-slate-800 tracking-tight">Set New Password</h1>
           <p className="text-xs font-semibold text-slate-400 tracking-wider uppercase mt-1">
             Secure Cryptographic Credential Update

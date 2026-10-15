@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   getComplianceOverview, getComplianceDisputes,
-  submitComplianceDecision
+  getComplianceFairness, submitComplianceDecision
 } from '../api/client';
 import {
   ShieldAlert, Scale, CheckCircle2, XCircle,
@@ -13,6 +13,7 @@ import { LoadingSpinner, ErrorBanner } from '../components/ui';
 export default function ComplianceDashboard() {
   const [overview, setOverview] = useState<any>(null);
   const [disputes, setDisputes] = useState<any[]>([]);
+  const [fairnessData, setFairnessData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,12 +28,14 @@ export default function ComplianceDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const [ovRes, dispRes] = await Promise.all([
+      const [ovRes, dispRes, fairRes] = await Promise.all([
         getComplianceOverview(),
         getComplianceDisputes(),
+        getComplianceFairness().catch(() => null),
       ]);
       setOverview(ovRes || {});
-      setDisputes(dispRes.disputes || []);
+      setDisputes(dispRes?.disputes || []);
+      setFairnessData(fairRes || null);
     } catch (err: any) {
       setError(err.message || 'Failed to load compliance officer dashboard.');
     } finally {
@@ -246,43 +249,104 @@ export default function ComplianceDashboard() {
         )}
       </div>
 
-      {/* ── FAIRNESS & ANOMALY BENCHMARK AUDIT ── */}
+      {/* ── FAIRNESS & COHORT BENCHMARK AUDIT (Live from Supabase) ── */}
       <div id="fairness" className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 lg:p-7">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
             <h2 className="text-lg font-bold text-slate-800 tracking-tight">
-              Algorithmic Fairness & Non-Discrimination Audit
+              Descriptive Cohort & Model Transparency Audit
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Verifies that equivalent behavioural risk exposures yield statistically unbiased quotes across protected cohorts.
+            <p className="text-xs text-slate-500 mt-0.5">
+              Empirical comparison of driving behaviour cohorts based strictly on persisted database records.
             </p>
           </div>
-          <span className="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700">
-            Parity Ratio: 0.98 (Compliant)
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-            <p className="font-bold text-slate-800 mb-1">Cohort A (Safe Usage Patterns)</p>
-            <p className="text-slate-500 mb-2">Tested against 50 simulated safe trips across diverse timeframes.</p>
-            <div className="space-y-1 font-mono text-slate-600">
-              <div className="flex justify-between"><span>Mean Safety Score:</span><span className="font-bold text-emerald-600">97.4 / 100</span></div>
-              <div className="flex justify-between"><span>Average Adjustment:</span><span className="font-bold text-emerald-600">−9.8%</span></div>
-              <div className="flex justify-between"><span>Disparate Impact:</span><span className="font-bold text-slate-800">1.00 (Zero Bias)</span></div>
-            </div>
-          </div>
-
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-            <p className="font-bold text-slate-800 mb-1">Cohort B (Risky Driving Patterns)</p>
-            <p className="text-slate-500 mb-2">Tested against 50 high-acceleration, high-braking simulated events.</p>
-            <div className="space-y-1 font-mono text-slate-600">
-              <div className="flex justify-between"><span>Mean Safety Score:</span><span className="font-bold text-rose-600">46.2 / 100</span></div>
-              <div className="flex justify-between"><span>Average Adjustment:</span><span className="font-bold text-rose-600">+19.5%</span></div>
-              <div className="flex justify-between"><span>Disparate Impact:</span><span className="font-bold text-slate-800">0.98 (Within Tolerance)</span></div>
-            </div>
+          <div>
+            {fairnessData?.status === 'calculated' ? (
+              <span className="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                Empirical Cohorts Calculated ({fairnessData.sampleSize} trips)
+              </span>
+            ) : (
+              <span className="text-xs font-semibold px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                Insufficient Data ({fairnessData?.sampleSize ?? 0} trips)
+              </span>
+            )}
           </div>
         </div>
+
+        {fairnessData?.status === 'insufficient_data' ? (
+          <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200/80 text-amber-900 text-xs">
+            <p className="font-bold text-amber-800 mb-1">Insufficient Data for Statistical Parity</p>
+            <p className="text-amber-700 mb-2">
+              {fairnessData.explanation || 'Live trip records do not yet have sufficient sample sizes across safe and elevated-risk cohorts to support defensible statistical parity tests.'}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 pt-3 border-t border-amber-200/60 text-slate-700">
+              <div className="bg-white/80 p-3 rounded-lg border border-amber-100">
+                <span className="font-semibold block text-slate-800">Cohort A (Safe Driver Patterns):</span>
+                <span className="text-slate-600">{fairnessData.cohortA?.sampleSize ?? 0} trips recorded (minimum 3 required)</span>
+              </div>
+              <div className="bg-white/80 p-3 rounded-lg border border-amber-100">
+                <span className="font-semibold block text-slate-800">Cohort B (Elevated Risk Patterns):</span>
+                <span className="text-slate-600">{fairnessData.cohortB?.sampleSize ?? 0} trips recorded (minimum 3 required)</span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+              <p className="font-bold text-slate-800 mb-1">{fairnessData?.cohortA?.title ?? 'Cohort A (Safe Driving Patterns)'}</p>
+              <p className="text-slate-500 mb-2">
+                {fairnessData?.cohortA?.description ?? `Evaluated against ${fairnessData?.cohortA?.sampleSize ?? 0} live safe trips.`}
+              </p>
+              <div className="space-y-1 font-mono text-slate-600">
+                <div className="flex justify-between">
+                  <span>Mean Safety Score:</span>
+                  <span className="font-bold text-emerald-600">
+                    {fairnessData?.cohortA?.meanSafetyScore != null ? `${fairnessData.cohortA.meanSafetyScore} / 100` : '—'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Mean Behaviour Adjustment:</span>
+                  <span className="font-bold text-emerald-600">
+                    {fairnessData?.cohortA?.averageAdjustmentPct != null ? `${fairnessData.cohortA.averageAdjustmentPct}%` : '—'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Sample Size:</span>
+                  <span className="font-bold text-slate-800">
+                    {fairnessData?.cohortA?.sampleSize ?? 0} verified trips
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+              <p className="font-bold text-slate-800 mb-1">{fairnessData?.cohortB?.title ?? 'Cohort B (Elevated Risk Driving Patterns)'}</p>
+              <p className="text-slate-500 mb-2">
+                {fairnessData?.cohortB?.description ?? `Evaluated against ${fairnessData?.cohortB?.sampleSize ?? 0} live elevated-risk trips.`}
+              </p>
+              <div className="space-y-1 font-mono text-slate-600">
+                <div className="flex justify-between">
+                  <span>Mean Safety Score:</span>
+                  <span className="font-bold text-rose-600">
+                    {fairnessData?.cohortB?.meanSafetyScore != null ? `${fairnessData.cohortB.meanSafetyScore} / 100` : '—'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Mean Behaviour Adjustment:</span>
+                  <span className="font-bold text-rose-600">
+                    {fairnessData?.cohortB?.averageAdjustmentPct != null ? `+${fairnessData.cohortB.averageAdjustmentPct}%` : '—'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Sample Size:</span>
+                  <span className="font-bold text-slate-800">
+                    {fairnessData?.cohortB?.sampleSize ?? 0} verified trips
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── DECISION MODAL ── */}
