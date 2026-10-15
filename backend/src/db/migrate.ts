@@ -1,122 +1,61 @@
 /**
  * Database Migration Script
- * Executes SQL migrations against Supabase PostgreSQL if configured (via DATABASE_URL or Supabase client),
+ * Executes the unified Supabase SQL schema against Supabase PostgreSQL if configured (via DATABASE_URL),
  * or logs a status report for in-memory mode.
  */
 
 import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
+import { executeQueryWithRetry } from './pgClient';
 
 dotenv.config();
 
 export async function runMigrations(): Promise<void> {
-  console.log('[INSURE-MIGRATE] Starting database migrations...');
+  console.log('[INSURE-MIGRATE] Starting database migrations via unified Supabase schema...');
 
-  const migrationsDir = path.join(__dirname, '../../migrations');
-  if (!fs.existsSync(migrationsDir)) {
-    console.error(`[INSURE-MIGRATE] Migrations directory not found: ${migrationsDir}`);
+  // Locate the unified Supabase schema file
+  const candidatePaths = [
+    path.resolve(__dirname, '../../../supabase_schema.sql'),
+    path.resolve(__dirname, '../../supabase_schema.sql'),
+    path.resolve(process.cwd(), 'supabase_schema.sql'),
+    path.resolve(process.cwd(), '../supabase_schema.sql'),
+  ];
+
+  const schemaPath = candidatePaths.find(p => fs.existsSync(p));
+
+  if (!schemaPath) {
+    console.error('[INSURE-MIGRATE] ERROR: supabase_schema.sql not found in workspace.');
     process.exit(1);
   }
 
-  const migrationFiles = fs.readdirSync(migrationsDir)
-    .filter(f => f.endsWith('.sql'))
-    .sort();
-
-  console.log(`[INSURE-MIGRATE] Found ${migrationFiles.length} migration files: ${migrationFiles.join(', ')}`);
+  console.log(`[INSURE-MIGRATE] Found single query schema file at: ${schemaPath}`);
 
   // 1. Direct PostgreSQL connection via DATABASE_URL
   if (process.env.DATABASE_URL) {
-    console.log('[INSURE-MIGRATE] Connecting directly via DATABASE_URL...');
-    const { Client } = require('pg');
-    const sslConfig = process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false };
-    const client = new Client({
-      connectionString: process.env.DATABASE_URL,
-      ssl: sslConfig,
-    });
-
+    console.log('[INSURE-MIGRATE] Connecting directly to remote Supabase PostgreSQL...');
     try {
-      await client.connect();
-      console.log('[INSURE-MIGRATE] Connected to remote PostgreSQL database.');
-
-      await client.query(`
-        CREATE TABLE IF NOT EXISTS schema_migrations (
-          filename VARCHAR(255) PRIMARY KEY,
-          applied_at TIMESTAMPTZ DEFAULT NOW()
-        );
-      `);
-
-      const { rows: appliedRows } = await client.query('SELECT filename FROM schema_migrations');
-      const appliedMap = new Set(appliedRows.map((r: any) => r.filename));
-
-      if (appliedMap.size === 0) {
-        const checkExisting = await client.query(`
-          SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name IN ('quotes', 'users');
-        `);
-        if (checkExisting.rows.length >= 2) {
-          for (const prev of ['001_initial.sql', '002_auth_otp_roles.sql', '003_telematics_pricing_corrections.sql']) {
-            if (migrationFiles.includes(prev)) {
-              await client.query('INSERT INTO schema_migrations (filename) VALUES ($1) ON CONFLICT DO NOTHING', [prev]);
-              appliedMap.add(prev);
-              console.log(`[INSURE-MIGRATE] - Pre-existing migration ${prev} recorded in schema_migrations.`);
-            }
-          }
-        }
-      }
-
-      for (const file of migrationFiles) {
-        if (appliedMap.has(file)) {
-          console.log(`[INSURE-MIGRATE] - ${file} already applied, skipping.`);
-          continue;
-        }
-        const filePath = path.join(migrationsDir, file);
-        const sql = fs.readFileSync(filePath, 'utf8');
-        console.log(`[INSURE-MIGRATE] Executing ${file}...`);
-        await client.query(sql);
-        await client.query('INSERT INTO schema_migrations (filename) VALUES ($1) ON CONFLICT DO NOTHING', [file]);
-        console.log(`[INSURE-MIGRATE] ✓ ${file} applied successfully.`);
-      }
-
-      console.log('[INSURE-MIGRATE] ✓ All migrations checked and applied successfully!');
-      await client.end();
+      const sql = fs.readFileSync(schemaPath, 'utf8');
+      console.log(`[INSURE-MIGRATE] Executing unified schema (${sql.length} characters)...`);
+      await executeQueryWithRetry(sql);
+      console.log('[INSURE-MIGRATE] ✓ Unified Supabase schema applied successfully!');
       return;
     } catch (err: any) {
-      console.error('[INSURE-MIGRATE] PostgreSQL connection/query error:', err.message);
-      await client.end().catch(() => {});
-      console.error('[INSURE-MIGRATE] Note: Ensure database password, project ref, and SSL settings are correct in Supabase.');
-      throw err;
+      console.error('[INSURE-MIGRATE] PostgreSQL schema execution error:', err.message);
+      process.exit(1);
     }
   }
 
-  // 2. Supabase API client fallback
-  const { isSupabaseConfigured, getClient } = require('./client');
-  if (isSupabaseConfigured()) {
-    const db = getClient();
-    try {
-      for (const file of migrationFiles) {
-        const filePath = path.join(migrationsDir, file);
-        const sql = fs.readFileSync(filePath, 'utf8');
-        console.log(`[INSURE-MIGRATE] Executing ${file} via Supabase RPC...`);
-        const { error } = await db.rpc('exec_sql', { query: sql });
-        if (error) {
-          console.warn(`[INSURE-MIGRATE] RPC failed for ${file}. Please run migrations in the Supabase SQL Editor.`);
-        } else {
-          console.log(`[INSURE-MIGRATE] ✓ ${file} executed successfully.`);
-        }
-      }
-    } catch (err: any) {
-      console.error('[INSURE-MIGRATE] Error running migration:', err.message);
-    }
-    return;
-  }
-
-  console.log('[INSURE-MIGRATE] Supabase / DATABASE_URL not fully configured in .env.');
-  console.log('[INSURE-MIGRATE] Using InMemoryStore — tables and schemas are active in memory.');
+  // 2. In-memory / mock database status
+  console.log('[INSURE-MIGRATE] No remote DATABASE_URL configured. Running in in-memory mode.');
+  console.log('[INSURE-MIGRATE] Initial in-memory entities are seeded on startup.');
 }
 
 if (require.main === module) {
-  runMigrations().then(() => process.exit(0)).catch(err => {
-    console.error(err);
-    process.exit(1);
-  });
+  runMigrations()
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.error('[INSURE-MIGRATE] Migration failed:', err);
+      process.exit(1);
+    });
 }
