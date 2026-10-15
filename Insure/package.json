@@ -1,0 +1,23 @@
+{
+  "name": "insure-root",
+  "version": "1.0.0",
+  "description": "INSURE — Smarter Driving. Fairer Insurance.",
+  "scripts": {
+    "start:backend": "npm --prefix backend start",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build:frontend": "npm --prefix frontend run build",
+    "test:backend": "npm --prefix backend test",
+    "test": "npm --prefix backend test"
+  },
+  "keywords": [
+    "telematics",
+    "insurance",
+    "behavior-based",
+    "react",
+    "nodejs",
+    "typescript"
+  ],
+  "author": "INSURE Team",
+  "license": "UNLICENSED"
+}
