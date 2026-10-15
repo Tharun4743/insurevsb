@@ -12,11 +12,7 @@ echo.
 :: 1. Locate Project Directory
 set "PROJECT_DIR=%~dp0"
 if not exist "%PROJECT_DIR%backend\package.json" (
-    if exist "%~dp0Insure\backend\package.json" (
-        set "PROJECT_DIR=%~dp0Insure\"
-    ) else (
-        goto :err_no_project
-    )
+    goto :err_no_project
 )
 
 :: 2. Locate Node.js and npm
