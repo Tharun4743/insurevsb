@@ -67,7 +67,8 @@
       "^.+\\.tsx?$": [
         "ts-jest",
         {
-          "tsconfig": "tsconfig.json"
+          "tsconfig": "tsconfig.json",
+          "diagnostics": false
         }
       ]
     }
