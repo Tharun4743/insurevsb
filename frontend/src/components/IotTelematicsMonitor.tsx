@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   Activity, Shield, AlertTriangle, AlertCircle, Wifi, WifiOff,
   RefreshCw, CheckCircle2, XCircle, MapPin, Gauge, Cpu, Flame,
-  HelpCircle, Zap, Award, Scale, Check, ExternalLink, Sliders, Layers
+  HelpCircle, Zap, Award, Scale, Check, ExternalLink, Sliders, Layers,
+  Play, Square, Radio
 } from 'lucide-react';
-import { getIotLatestTelemetry, getIotTelemetryHistory, getIotAlerts, getIotVehicles } from '../api/client';
+import { getIotLatestTelemetry, getIotTelemetryHistory, getIotAlerts, getIotVehicles, sendIotTelemetry } from '../api/client';
 
 export function IotTelematicsMonitor() {
   const [selectedVehicle, setSelectedVehicle] = useState<string>('INSURE-BIKE-001');
@@ -21,10 +22,111 @@ export function IotTelematicsMonitor() {
   const [pollingActive, setPollingActive] = useState<boolean>(true);
   const [showGuide, setShowGuide] = useState<boolean>(false);
 
+  // Live Simulation Controller State
+  const [isSimulating, setIsSimulating] = useState<boolean>(false);
+  const [simScenario, setSimScenario] = useState<'safe' | 'risky' | 'collision'>('safe');
+  const [packetCount, setPacketCount] = useState<number>(0);
+  const [sendingPacket, setSendingPacket] = useState<boolean>(false);
+  const simSequenceRef = useRef<number>(2000 + Math.floor(Math.random() * 5000));
+  const simIntervalRef = useRef<any>(null);
+
   const isMountedRef = useRef(true);
   const inFlightRef = useRef(false);
 
   const WOKWI_PROJECT_URL = 'https://wokwi.com/projects/478002558874029057';
+
+  const sendSimulationPacket = async (scenario: 'safe' | 'risky' | 'collision') => {
+    setSendingPacket(true);
+    simSequenceRef.current += 1;
+    const seq = simSequenceRef.current;
+    const deviceId = selectedVehicle === 'INSURE-BIKE-001' ? 'ESP32-DEV-001' : 'ESP32-DEV-002';
+
+    let speed = 40.0;
+    let accel = 0.5;
+    let impact = 0.98;
+    let helmet = true;
+    let alcohol = 0.00;
+    let eventType = 'regular';
+
+    if (scenario === 'safe') {
+      speed = Math.round((38 + Math.random() * 8) * 10) / 10;
+      accel = Math.round((-0.5 + Math.random() * 1.2) * 100) / 100;
+      impact = Math.round((0.95 + Math.random() * 0.1) * 100) / 100;
+      helmet = true;
+      alcohol = 0.00;
+      eventType = 'regular';
+    } else if (scenario === 'risky') {
+      speed = Math.round((82 + Math.random() * 18) * 10) / 10;
+      accel = Math.round((-4.8 + Math.random() * 7.5) * 100) / 100;
+      impact = Math.round((1.2 + Math.random() * 0.8) * 100) / 100;
+      helmet = false;
+      alcohol = 0.28;
+      eventType = 'speeding_breach';
+    } else if (scenario === 'collision') {
+      speed = 0.0;
+      accel = -8.5;
+      impact = 6.85; // > 5.0g triggers collision alert
+      helmet = true;
+      alcohol = 0.00;
+      eventType = 'collision';
+    }
+
+    const payload = {
+      eventId: `sim-${selectedVehicle.toLowerCase()}-${Date.now()}-${seq}`,
+      deviceId,
+      vehicleId: selectedVehicle,
+      sequenceNumber: seq,
+      timestamp: new Date().toISOString(),
+      speed_kmh: speed,
+      acceleration_ms2: accel,
+      impact_magnitude_g: impact,
+      helmet_detected: helmet,
+      alcohol_ppm: alcohol,
+      latitude: 12.9716 + (seq % 100) * 0.0001,
+      longitude: 77.5946 + (seq % 100) * 0.0001,
+      ignition_state: 'ON',
+      event_type: eventType,
+      synthetic: true,
+    };
+
+    try {
+      await sendIotTelemetry(payload);
+      setPacketCount(c => c + 1);
+      await fetchData(true);
+    } catch (e: any) {
+      console.error('Simulation packet error:', e.message);
+    } finally {
+      setSendingPacket(false);
+    }
+  };
+
+  const startLiveSimulation = (scenario: 'safe' | 'risky' | 'collision') => {
+    setSimScenario(scenario);
+    setIsSimulating(true);
+    if (simIntervalRef.current) clearInterval(simIntervalRef.current);
+
+    // Send immediate first packet
+    sendSimulationPacket(scenario);
+
+    // Stream continuously every 2.5 seconds
+    simIntervalRef.current = setInterval(() => {
+      sendSimulationPacket(scenario);
+    }, 2500);
+  };
+
+  const stopLiveSimulation = () => {
+    setIsSimulating(false);
+    if (simIntervalRef.current) {
+      clearInterval(simIntervalRef.current);
+      simIntervalRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (simIntervalRef.current) clearInterval(simIntervalRef.current);
+    };
+  }, []);
 
   const fetchData = async (isManual = false) => {
     if (inFlightRef.current && !isManual) return;
@@ -235,6 +337,101 @@ export function IotTelematicsMonitor() {
               <Award className="w-3.5 h-3.5 text-emerald-500" />
               <span>2. Scenario Insurance Calculations</span>
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── ⚡ Real Live Driving Simulation Controller ────────────────────── */}
+      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl border border-indigo-800/80 p-4 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className={`p-2 rounded-xl ${isSimulating ? 'bg-emerald-500/20 text-emerald-400 animate-pulse' : 'bg-white/10 text-slate-300'}`}>
+              <Radio className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-white">
+                  Live Drive Simulator Streamer
+                </span>
+                {isSimulating ? (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 animate-pulse flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    STREAMING ACTIVE ({packetCount} pkts sent)
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-slate-400 border border-white/10">
+                    Ready to stream live data
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-slate-300 mt-0.5">
+                Generate and stream real ESP32 telematics packets directly into Supabase PostgreSQL for live actuarial pricing.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {!isSimulating ? (
+              <>
+                <button
+                  type="button"
+                  id="btn-start-sim-safe"
+                  onClick={() => startLiveSimulation('safe')}
+                  className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Play className="w-3.5 h-3.5 text-white fill-white" />
+                  <span>Start Safe Drive</span>
+                </button>
+                <button
+                  type="button"
+                  id="btn-start-sim-risky"
+                  onClick={() => startLiveSimulation('risky')}
+                  className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+                >
+                  <AlertTriangle className="w-3.5 h-3.5 text-white" />
+                  <span>Start Risky Drive</span>
+                </button>
+                <button
+                  type="button"
+                  id="btn-start-sim-collision"
+                  onClick={() => startLiveSimulation('collision')}
+                  className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Flame className="w-3.5 h-3.5 text-white" />
+                  <span>Trigger Collision Spike</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <span className="text-xs text-indigo-300 font-mono hidden sm:inline">
+                  Mode: <strong className="text-white uppercase">{simScenario}</strong>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => startLiveSimulation(simScenario === 'safe' ? 'risky' : 'safe')}
+                  className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  Switch to {simScenario === 'safe' ? 'Risky' : 'Safe'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => sendSimulationPacket('collision')}
+                  className="px-2.5 py-1.5 rounded-xl bg-rose-600/80 hover:bg-rose-600 text-white text-xs font-bold transition-colors cursor-pointer"
+                  title="Inject sudden collision impact"
+                >
+                  Trigger Collision
+                </button>
+                <button
+                  type="button"
+                  id="btn-stop-live-sim"
+                  onClick={stopLiveSimulation}
+                  className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Square className="w-3.5 h-3.5 fill-white" />
+                  <span>Stop Stream</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

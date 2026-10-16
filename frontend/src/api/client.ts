@@ -75,6 +75,12 @@ export const getIotAlerts = () =>
   api.get('/iot/alerts').then(r => r.data);
 export const getIotVehicles = () =>
   api.get('/iot/vehicles').then(r => r.data);
+export const sendIotTelemetry = (data: any) =>
+  api.post('/iot/telemetry', data, {
+    headers: {
+      'X-Device-Key': '38252d8258310d9507b46252bb3dc360824a6c1e2e2e42ac2db8af64efcff95a',
+    },
+  }).then(r => r.data);
 
 // ── Trips ─────────────────────────────────────────────────────────────────────
 export const getTrips       = (limit = 50) => api.get(`/trips?limit=${limit}`).then(r => r.data);

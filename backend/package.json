@@ -2,6 +2,7 @@
   "name": "insure-backend",
   "version": "1.0.0",
   "description": "INSURE – Smarter Driving. Fairer Insurance. Backend API",
+  "license": "MIT",
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",

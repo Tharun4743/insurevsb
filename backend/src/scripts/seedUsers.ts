@@ -39,30 +39,6 @@ export async function seedPrivilegedUsers(): Promise<void> {
       password: defaultPassword,
       role: 'customer',
     },
-    {
-      email: 'admin@insure.test',
-      fullName: 'Insurance Administrator',
-      password: defaultPassword,
-      role: 'admin',
-    },
-    {
-      email: 'compliance@insure.test',
-      fullName: 'Chief Compliance Officer',
-      password: defaultPassword,
-      role: 'compliance_officer',
-    },
-    {
-      email: 'customer@insure.test',
-      fullName: 'Alex Driver',
-      password: defaultPassword,
-      role: 'customer',
-    },
-    {
-      email: 'demo@insure.test',
-      fullName: 'Demo Driver',
-      password: defaultPassword,
-      role: 'customer',
-    },
   ];
 
   for (const acc of accounts) {

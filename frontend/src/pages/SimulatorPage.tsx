@@ -278,131 +278,23 @@ export default function SimulatorPage() {
               })}
             </div>
 
-            {/* Reading count */}
-            <div className="border-t border-slate-100 pt-3">
-              <div className="flex justify-between items-center mb-1.5">
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
-                  Telemetry Readings
-                </label>
-                <span className="text-xs font-mono font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded border border-brand-200">
-                  {count} points (~{(count * 5 / 60).toFixed(1)} min)
-                </span>
-              </div>
-              <input
-                id="input-reading-count"
-                type="range"
-                min={10}
-                max={200}
-                step={10}
-                value={count}
-                onChange={e => setCount(+e.target.value)}
-                className="w-full accent-brand-600"
-              />
-              <div className="flex justify-between text-[11px] text-slate-400 mt-1">
-                <span>10 readings</span>
-                <span>200 readings</span>
-              </div>
-            </div>
-
-            {/* Interactive Session Controls (Phase 3.B) */}
-            <div className="border-t border-slate-100 pt-3 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
-                  Interactive Simulator
-                </span>
-                <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${
-                  sessionState === 'running'
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200 animate-pulse'
-                    : sessionState === 'paused'
-                    ? 'bg-amber-50 text-amber-700 border-amber-200'
-                    : sessionState === 'completed'
-                    ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
-                    : 'bg-slate-100 text-slate-500 border-slate-200'
-                }`}>
-                  {sessionState}
-                </span>
-              </div>
-
-              {/* Control Buttons Group */}
-              <div className="grid grid-cols-2 gap-2">
-                {sessionState === 'idle' || sessionState === 'completed' || sessionState === 'stopped' ? (
-                  <button
-                    id="btn-session-start"
-                    onClick={handleStartSession}
-                    disabled={sessionActionLoading || !consented}
-                    className="btn-secondary py-2 justify-center text-xs gap-1.5"
-                    title="Start an interactive session"
-                  >
-                    <Play className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Start Session</span>
-                  </button>
-                ) : sessionState === 'running' ? (
-                  <button
-                    id="btn-session-pause"
-                    onClick={handlePauseSession}
-                    disabled={sessionActionLoading}
-                    className="btn-secondary py-2 justify-center text-xs gap-1.5 border-amber-300 bg-amber-50/50 text-amber-800"
-                    title="Pause reading generation"
-                  >
-                    <Pause className="w-3.5 h-3.5 text-amber-600" />
-                    <span>Pause</span>
-                  </button>
-                ) : (
-                  <button
-                    id="btn-session-resume"
-                    onClick={handleResumeSession}
-                    disabled={sessionActionLoading}
-                    className="btn-secondary py-2 justify-center text-xs gap-1.5 border-emerald-300 bg-emerald-50/50 text-emerald-800"
-                    title="Resume reading generation"
-                  >
-                    <Play className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Resume</span>
-                  </button>
-                )}
-
-                {sessionState === 'running' || sessionState === 'paused' ? (
-                  <button
-                    id="btn-session-stop"
-                    onClick={handleStopSession}
-                    disabled={sessionActionLoading}
-                    className="btn-secondary py-2 justify-center text-xs gap-1.5 border-red-300 bg-red-50/50 text-red-800"
-                    title="Stop session and process through pipeline"
-                  >
-                    <Square className="w-3.5 h-3.5 text-red-600 fill-red-600" />
-                    <span>Stop & Score</span>
-                  </button>
-                ) : (
-                  <button
-                    id="btn-session-reset"
-                    onClick={handleResetSession}
-                    disabled={sessionActionLoading}
-                    className="btn-secondary py-2 justify-center text-xs gap-1.5"
-                    title="Reset simulation session"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Reset</span>
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Quick Run End-to-End Pipeline */}
-            <div className="flex gap-2 pt-1">
+            {/* Run Actuarial Evaluation Button */}
+            <div className="border-t border-slate-100 pt-3 flex gap-2">
               <button
                 id="btn-run-simulation"
                 onClick={handleRun}
                 disabled={running || !consented}
-                className="btn-primary flex-1 py-2.5 justify-center shadow-xs"
+                className="btn-primary flex-1 py-2.5 justify-center shadow-xs text-xs font-bold gap-2 cursor-pointer"
               >
                 {running ? (
                   <>
                     <LoadingSpinner size="sm" />
-                    <span>Executing Pipeline…</span>
+                    <span>Evaluating Scenario…</span>
                   </>
                 ) : (
                   <>
-                    <Play className="w-4 h-4" />
-                    <span>Execute Full Trip</span>
+                    <Play className="w-4 h-4 text-white fill-white" />
+                    <span>Run Actuarial Pricing Evaluation</span>
                   </>
                 )}
               </button>
