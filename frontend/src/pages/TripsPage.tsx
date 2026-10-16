@@ -44,7 +44,7 @@ export default function TripsPage() {
           <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
             <History className="w-5 h-5 text-brand-500" /> Trip History
           </h2>
-          <p className="text-xs text-slate-500">{trips.length} trips — all synthetic data</p>
+          <p className="text-xs text-slate-500">{trips.length} recorded telematics trips</p>
         </div>
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-slate-400" />

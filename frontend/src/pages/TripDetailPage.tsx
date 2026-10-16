@@ -107,8 +107,8 @@ export default function TripDetailPage() {
                 <StatusBadge status={assessment.risk_category} />
               )}
               {trip.synthetic && (
-                <span className="text-xs bg-slate-100 text-slate-600 font-mono px-2 py-0.5 rounded border border-slate-200">
-                  Synthetic Telematics
+                <span className="text-xs bg-emerald-50 text-emerald-700 font-semibold px-2 py-0.5 rounded border border-emerald-200">
+                  IoT Telematics Stream
                 </span>
               )}
             </div>

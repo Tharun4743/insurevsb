@@ -8,11 +8,9 @@ import AppShell from './components/layout/AppShell';
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const ComplianceDashboard = lazy(() => import('./pages/ComplianceDashboard'));
-const ConsentPage = lazy(() => import('./pages/ConsentPage'));
 const SimulatorPage = lazy(() => import('./pages/SimulatorPage'));
 const TripsPage = lazy(() => import('./pages/TripsPage'));
 const TripDetailPage = lazy(() => import('./pages/TripDetailPage'));
-const AssessmentsPage = lazy(() => import('./pages/AssessmentsPage'));
 const ReviewPage = lazy(() => import('./pages/ReviewPage'));
 const AuditPage = lazy(() => import('./pages/AuditPage'));
 const ProfitabilityPage = lazy(() => import('./pages/ProfitabilityPage'));
@@ -99,11 +97,9 @@ export default function App() {
                   }
                 />
                 <Route path="profitability" element={<ProfitabilityPage />} />
-                <Route path="consent" element={<ConsentPage />} />
                 <Route path="simulator" element={<SimulatorPage />} />
                 <Route path="trips" element={<TripsPage />} />
                 <Route path="trips/:id" element={<TripDetailPage />} />
-                <Route path="assessments" element={<AssessmentsPage />} />
                 <Route path="review" element={<ReviewPage />} />
                 <Route path="audit" element={<AuditPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
