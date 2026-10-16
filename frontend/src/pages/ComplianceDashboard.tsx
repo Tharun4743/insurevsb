@@ -58,8 +58,8 @@ export default function ComplianceDashboard() {
     e.preventDefault();
     if (!selectedDispute) return;
 
-    if (!explanation.trim() || explanation.trim().length < 5) {
-      alert('A detailed explanation (min 5 characters) is required for compliance audit trails.');
+    if (!explanation.trim() || explanation.trim().length < 10) {
+      alert('A detailed explanation (min 10 characters) is required for compliance audit trails.');
       return;
     }
 
@@ -409,7 +409,7 @@ export default function ComplianceDashboard() {
                   </button>
                   <button
                     type="submit"
-                    disabled={submitting || explanation.trim().length < 5}
+                    disabled={submitting || explanation.trim().length < 10}
                     className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white text-xs font-semibold shadow-xs"
                   >
                     {submitting ? 'Recording…' : 'Record Official Decision'}

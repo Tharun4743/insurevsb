@@ -21,6 +21,7 @@ import { createError } from '../middleware/errorHandler';
 import { validateReadings } from '../services/validationService';
 import { extractFeatures } from '../services/featureService';
 import { calculateScore } from '../services/scoringService';
+import { calculateQuote } from '../services/pricingService';
 
 const router = express.Router();
 
@@ -46,11 +47,16 @@ function safeCompareSecret(provided: string, expected: string): boolean {
 // ── In-Memory Deduplication Cache (LRU-like cache for fast idempotency) ───────
 const processedEventIds = new Set<string>();
 const recentSequenceByVehicle = new Map<string, number>();
+const vehicleAuthCache = new Map<string, { authorized: boolean; reason?: string; vehicle?: any; expiresAt: number }>();
 
 // Clean up cache periodically to prevent unbounded memory growth
 const cacheCleanupTimer = setInterval(() => {
   if (processedEventIds.size > 10000) {
     processedEventIds.clear();
+  }
+  const now = Date.now();
+  for (const [k, v] of vehicleAuthCache.entries()) {
+    if (v.expiresAt < now) vehicleAuthCache.delete(k);
   }
 }, 3600000);
 if (cacheCleanupTimer.unref) cacheCleanupTimer.unref();
@@ -131,6 +137,13 @@ function authenticateDevice(req: Request, res: Response, next: NextFunction): an
 
 // ── Helper: Validate Vehicle & Device Authorization ───────────────────────────
 async function verifyVehicleAuthorization(vehicleId: string, deviceId: string): Promise<{ authorized: boolean; reason?: string; vehicle?: any }> {
+  const cacheKey = `${vehicleId}:${deviceId}`;
+  const now = Date.now();
+  const cached = vehicleAuthCache.get(cacheKey);
+  if (cached && cached.expiresAt > now) {
+    return { authorized: cached.authorized, reason: cached.reason, vehicle: cached.vehicle };
+  }
+
   const db = getClient();
 
   const { data: vehicles, error } = await db
@@ -160,27 +173,35 @@ async function verifyVehicleAuthorization(vehicleId: string, deviceId: string): 
   }
 
   if (!vehicle) {
-    return {
+    const result = {
       authorized: false,
       reason: `Vehicle '${vehicleId}' is not registered in the INSURE system.`,
     };
+    vehicleAuthCache.set(cacheKey, { ...result, expiresAt: now + 5000 });
+    return result;
   }
 
   if (vehicle.status !== 'active') {
-    return {
+    const result = {
       authorized: false,
       reason: `Vehicle '${vehicleId}' is decommissioned or inactive.`,
     };
+    vehicleAuthCache.set(cacheKey, { ...result, expiresAt: now + 5000 });
+    return result;
   }
 
   if (vehicle.device_id && vehicle.device_id !== deviceId) {
-    return {
+    const result = {
       authorized: false,
       reason: `Device '${deviceId}' is not authorized to submit telematics for vehicle '${vehicleId}'.`,
     };
+    vehicleAuthCache.set(cacheKey, { ...result, expiresAt: now + 5000 });
+    return result;
   }
 
-  return { authorized: true, vehicle };
+  const result = { authorized: true, vehicle };
+  vehicleAuthCache.set(cacheKey, { ...result, expiresAt: now + 60000 });
+  return result;
 }
 
 // ── Helper: Get or Create Active Trip for Vehicle ─────────────────────────────
@@ -493,10 +514,42 @@ async function processTelemetryReading(reading: z.infer<typeof SingleTelemetrySc
       };
 
       const { data: existingAssessments } = await db.from('risk_assessments').select('id').eq('trip_id', trip.id).limit(1);
+      let assessmentId = uuidv4();
       if (existingAssessments && existingAssessments.length > 0) {
+        assessmentId = existingAssessments[0].id;
         await db.from('risk_assessments').update(assessmentData).eq('trip_id', trip.id);
       } else {
-        await db.from('risk_assessments').insert({ id: uuidv4(), ...assessmentData });
+        await db.from('risk_assessments').insert({ id: assessmentId, ...assessmentData });
+      }
+
+      // Calculate and save fair pricing quote (strictly preserving existing pricing formulas)
+      const quote = calculateQuote(scoreResult, null);
+      const quoteData = {
+        trip_id: trip.id,
+        assessment_id: assessmentId,
+        user_id: userId,
+        illustrative_estimate: quote.illustrative_estimate,
+        base_premium: quote.base_premium,
+        risk_adjustment: quote.risk_adjustment,
+        risk_adjustment_pct: quote.risk_adjustment_pct,
+        behaviour_adjustment: quote.behaviour_adjustment,
+        behaviour_adjustment_pct: quote.behaviour_adjustment_pct,
+        accident_adjustment: quote.accident_adjustment,
+        accident_adjustment_pct: quote.accident_adjustment_pct,
+        explanation: quote.explanation,
+        status: quote.status,
+        rule_version: quote.rule_version,
+        currency: quote.currency,
+        data_quality_state: validation.status,
+        consent_status: 'acknowledged',
+        input_metrics: JSON.stringify(metrics),
+      };
+
+      const { data: existingQuotes } = await db.from('quotes').select('id').eq('trip_id', trip.id).limit(1);
+      if (existingQuotes && existingQuotes.length > 0) {
+        await db.from('quotes').update(quoteData).eq('trip_id', trip.id);
+      } else {
+        await db.from('quotes').insert({ id: uuidv4(), ...quoteData, created_at: new Date().toISOString() });
       }
 
       tripScored = true;
@@ -601,8 +654,36 @@ router.get('/telemetry/latest', requireAuth, async (req: any, res: Response, nex
       return next(createError(500, error.message));
     }
 
+    const latest = readings && readings.length > 0 ? readings[0] : null;
+    let assessment = null;
+    let quote = null;
+
+    if (latest && latest.trip_id) {
+      const { data: assessments } = await db
+        .from('risk_assessments')
+        .select('*')
+        .eq('trip_id', latest.trip_id)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      if (assessments && assessments.length > 0) {
+        assessment = assessments[0];
+      }
+
+      const { data: quotes } = await db
+        .from('quotes')
+        .select('*')
+        .eq('trip_id', latest.trip_id)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      if (quotes && quotes.length > 0) {
+        quote = quotes[0];
+      }
+    }
+
     res.json({
-      latest: readings && readings.length > 0 ? readings[0] : null,
+      latest,
+      assessment,
+      quote,
       recent: readings || [],
       count: readings?.length || 0,
       synthetic: true,

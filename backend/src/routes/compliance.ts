@@ -71,7 +71,7 @@ router.get('/disputes', async (req: any, res: Response, next: NextFunction) => {
 });
 
 const DecisionSchema = z.object({
-  decision: z.enum(['resolved', 'rejected']),
+  decision: z.enum(['resolved', 'rejected', 'under_investigation']),
   explanation: z.string().trim().min(10, 'Explanation must be at least 10 characters long.'),
 });
 

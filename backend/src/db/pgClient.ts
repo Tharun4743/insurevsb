@@ -36,7 +36,7 @@ export function getPool(): Pool {
   return pool;
 }
 
-export async function executeQueryWithRetry(sql: string, values?: any[], retries: number = 2): Promise<any> {
+export async function executeQueryWithRetry(sql: string, values?: any[], retries: number = 3): Promise<any> {
   const p = getPool();
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
@@ -44,12 +44,15 @@ export async function executeQueryWithRetry(sql: string, values?: any[], retries
     } catch (err: any) {
       const isConnError = err.code === 'ECONNRESET' ||
                           err.code === 'EPIPE' ||
+                          err.code === 'ENOTFOUND' ||
+                          err.code === 'EAI_AGAIN' ||
                           err.message?.includes('ECONNRESET') ||
                           err.message?.includes('Connection terminated') ||
-                          err.message?.includes('connection timeout');
+                          err.message?.includes('connection timeout') ||
+                          err.message?.includes('ENOTFOUND');
       if (isConnError && attempt < retries) {
         console.warn(`[Supabase PG] Connection interrupted (${err.message}). Retrying attempt ${attempt + 1}...`);
-        await new Promise(r => setTimeout(r, 300 * (attempt + 1)));
+        await new Promise(r => setTimeout(r, 400 * (attempt + 1)));
         continue;
       }
       throw err;
