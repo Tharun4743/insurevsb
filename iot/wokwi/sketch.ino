@@ -32,13 +32,12 @@ const char* WIFI_PASSWORD = "";
 
 // Default ingestion endpoint (can be overridden with deployed Render host)
 // Format: "https://your-backend.onrender.com/api/iot/telemetry" or "http://your-ip:3001/api/iot/telemetry"
-char backendUrl[160]      = "https://insure-backend.onrender.com/api/iot/telemetry";
+char backendUrl[160]      = "https://insurevsb.vercel.app/api/iot/telemetry";
 
 // DEMO-ONLY CREDENTIAL NOTICE:
 // In the public Wokwi virtual simulator, firmware source and simulator traffic are observable.
-// This key is an isolated, synthetic DEMO key for development testing only.
-// NEVER commit or embed real production API keys in public simulator firmware.
-const char* DEVICE_KEY    = "demo-wokwi-virtual-key-dev-only-2026";
+// This key is configured to authenticate with the INSURE backend on Vercel.
+const char* DEVICE_KEY    = "38252d8258310d9507b46252bb3dc360824a6c1e2e2e42ac2db8af64efcff95a";
 
 // Transmission interval in milliseconds (e.g. 4000ms = 4s bounded polling)
 const unsigned long TRANSMIT_INTERVAL_MS = 4000;
