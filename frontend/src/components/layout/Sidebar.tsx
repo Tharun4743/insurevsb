@@ -144,7 +144,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               </span>
             </div>
             <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate mt-0.5">
-              {user?.email || 'demo@insure.test'}
+              {user?.email || 'tharunkumark4743@gmail.com'}
             </p>
           </div>
 
