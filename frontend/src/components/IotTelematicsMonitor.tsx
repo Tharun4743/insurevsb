@@ -234,12 +234,12 @@ export function IotTelematicsMonitor() {
               {isFresh ? (
                 <>
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                  <span>Live Stream Active</span>
+                  <span>Live Stream Active ({latestReading?.timestamp ? new Date(latestReading.timestamp).toLocaleTimeString() : ''})</span>
                 </>
               ) : latestReading ? (
                 <>
                   <span className="w-2 h-2 rounded-full bg-amber-500" />
-                  <span>Idle / Stale (&gt;20s)</span>
+                  <span>Idle / Stale (&gt;20s) • Last Packet: {new Date(latestReading.timestamp).toLocaleTimeString()}</span>
                 </>
               ) : (
                 <>
@@ -247,6 +247,12 @@ export function IotTelematicsMonitor() {
                   <span>Awaiting Packets</span>
                 </>
               )}
+            </div>
+
+            {/* Live Gateway Clock Badge */}
+            <div className="hidden sm:flex items-center gap-1 px-2.5 py-1 text-[11px] font-mono text-slate-600 bg-slate-100 border border-slate-200 rounded-lg">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Gateway Polling: {lastFetchTime ? lastFetchTime.toLocaleTimeString() : 'Syncing...'}</span>
             </div>
 
             {/* Launch Tab 1 Button */}
