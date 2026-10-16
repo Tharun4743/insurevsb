@@ -454,12 +454,12 @@ export default function TripDetailPage() {
                       {r.speed_kmh !== null ? `${Math.round(r.speed_kmh)}` : <span className="text-red-500">null</span>}
                     </td>
                     <td className="table-td text-slate-600">
-                      {r.distance_km !== null ? r.distance_km.toFixed(2) : '—'}
+                      {r.distance_km !== null && !isNaN(Number(r.distance_km)) ? Number(r.distance_km).toFixed(2) : '—'}
                     </td>
                     <td className="table-td">
-                      {r.acceleration_ms2 !== null ? (
-                        <span className={r.acceleration_ms2 < -3.5 ? 'text-red-600 font-bold' : r.acceleration_ms2 > 3.0 ? 'text-amber-600 font-bold' : 'text-slate-600'}>
-                          {r.acceleration_ms2.toFixed(2)}
+                      {r.acceleration_ms2 !== null && !isNaN(Number(r.acceleration_ms2)) ? (
+                        <span className={Number(r.acceleration_ms2) < -3.5 ? 'text-red-600 font-bold' : Number(r.acceleration_ms2) > 3.0 ? 'text-amber-600 font-bold' : 'text-slate-600'}>
+                          {Number(r.acceleration_ms2).toFixed(2)}
                         </span>
                       ) : '—'}
                     </td>

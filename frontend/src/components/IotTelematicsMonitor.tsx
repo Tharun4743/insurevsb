@@ -472,7 +472,7 @@ export function IotTelematicsMonitor() {
           </div>
           <div className="flex justify-between text-[11px] text-slate-500 font-mono">
             <span>Point A: 12.971600° N, 77.594600° E</span>
-            <span>Current: {latestReading?.latitude?.toFixed(6) || '12.971600'}° N</span>
+            <span>Current: {latestReading?.latitude ? Number(latestReading.latitude).toFixed(6) : '12.971600'}° N</span>
             <span>Point B: 12.990000° N, 77.610000° E</span>
           </div>
         </div>
