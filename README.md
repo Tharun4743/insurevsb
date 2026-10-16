@@ -122,6 +122,21 @@ npm test
 
 ## 👨‍💻 Engineering Author
 
+## ⚙️ Technical Approach & System Architecture
+
+### 📐 High-Level Architectural Flowchart:
+`mermaid
+graph TD
+    VehicleOBD["Consented IoT Telematics (OBD-II / CAN Stream)"] -->|Speed, Accel, Braking| EdgeAgent["Edge Telematics Pre-Processor"]
+    EdgeAgent --> CloudAPI["INSURE Actuarial Ingestion Gateway"]
+    CloudAPI --> BehavioralEngine["Behavioral Driving Safety Scorer"]
+    BehavioralEngine --> ActuarialModel["Fair Risk Pricing & Dynamic Premium Adjuster"]
+    ActuarialModel --> SmartContract["Transparent Policy Settlement & Ledger"]
+    SmartContract --> InsuredApp["Driver Companion App (Gamified Safety Rewards)"]
+`
+
+---
+
 <table border="0">
   <tr>
     <td width="120" align="center" valign="top">
