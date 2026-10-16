@@ -48,11 +48,12 @@ export const THRESHOLDS = {
 
 export function calculateScore(metrics: any, options: any = {}): any {
   // ── Data Quality & Confidence Gate ─────────────────────────────────────────
+  const allowProvisional = Boolean(options.allowProvisional || options.isLiveIot);
   const isInsufficient =
     !metrics ||
-    metrics.data_confidence === 'insufficient' ||
+    (!allowProvisional && metrics.data_confidence === 'insufficient') ||
     metrics.data_quality_status === 'review_required' ||
-    (metrics.total_distance_km != null && metrics.total_distance_km < 1.0) ||
+    (!allowProvisional && metrics.total_distance_km != null && metrics.total_distance_km < 1.0) ||
     (metrics.valid_reading_count != null && metrics.valid_reading_count < 5);
 
   if (isInsufficient) {
@@ -167,7 +168,9 @@ export function calculateScore(metrics: any, options: any = {}): any {
     safety_score: safetyScore,
     driving_risk_score: drivingRiskScore,
     risk_category: riskCategory,
-    data_confidence: metrics.data_confidence || 'high',
+    data_confidence: allowProvisional && (metrics.total_distance_km == null || metrics.total_distance_km < 1.0)
+      ? 'provisional'
+      : (metrics.data_confidence || 'high'),
     status: 'scored',
     review_reasons: [],
     factor_contributions: factorContributions,

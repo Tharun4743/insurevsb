@@ -698,41 +698,63 @@ export function IotTelematicsMonitor() {
             {assessment ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Safety Score Card */}
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Calculated Safety Score
-                  </span>
-                  <div className="my-2 flex items-baseline gap-2">
-                    <span
-                      className={`text-3xl font-black ${
-                        assessment.safety_score >= 80
-                          ? 'text-emerald-600'
-                          : assessment.safety_score >= 50
-                          ? 'text-amber-600'
-                          : 'text-rose-600'
-                      }`}
-                    >
-                      {Number(assessment.safety_score).toFixed(1)}
+                <div className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      Calculated Safety Score
                     </span>
-                    <span className="text-xs font-semibold text-slate-400">/ 100</span>
-                    <span
-                      className={`text-[11px] font-bold px-2 py-0.5 rounded-full ml-auto ${
-                        assessment.safety_score >= 80
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : assessment.safety_score >= 50
-                          ? 'bg-amber-100 text-amber-800'
-                          : 'bg-rose-100 text-rose-800'
-                      }`}
-                    >
-                      {assessment.safety_score >= 80
-                        ? 'SAFE DRIVER'
-                        : assessment.safety_score >= 50
-                        ? 'MODERATE RISK'
-                        : 'ELEVATED RISK'}
-                    </span>
+                    {assessment.data_confidence === 'provisional' && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300">
+                        PROVISIONAL
+                      </span>
+                    )}
                   </div>
-                  <p className="text-[11px] text-slate-500">
-                    Driving Risk Index: {Number(assessment.driving_risk_score || 0).toFixed(2)} | Confidence: {assessment.data_confidence || 'high'}
+                  <div className="my-2 flex items-baseline gap-2">
+                    {assessment.safety_score != null ? (
+                      <>
+                        <span
+                          className={`text-3xl font-black ${
+                            assessment.safety_score >= 80
+                              ? 'text-emerald-600 dark:text-emerald-400'
+                              : assessment.safety_score >= 50
+                              ? 'text-amber-600 dark:text-amber-400'
+                              : 'text-rose-600 dark:text-rose-400'
+                          }`}
+                        >
+                          {Number(assessment.safety_score).toFixed(1)}
+                        </span>
+                        <span className="text-xs font-semibold text-slate-400">/ 100</span>
+                        <span
+                          className={`text-[11px] font-bold px-2 py-0.5 rounded-full ml-auto ${
+                            assessment.safety_score >= 80
+                              ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
+                              : assessment.safety_score >= 50
+                              ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
+                              : 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300'
+                          }`}
+                        >
+                          {assessment.safety_score >= 80
+                            ? 'SAFE DRIVER'
+                            : assessment.safety_score >= 50
+                            ? 'MODERATE RISK'
+                            : 'ELEVATED RISK'}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-2xl font-bold text-slate-700 dark:text-slate-200">
+                          Baseline Active
+                        </span>
+                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full ml-auto bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                          CALIBRATING
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    {assessment.safety_score != null
+                      ? `Driving Risk Index: ${Number(assessment.driving_risk_score || 0).toFixed(2)} | Confidence: ${assessment.data_confidence || 'high'}`
+                      : 'Accumulating driving exposure. Baseline approved rate (₹2,000) applies without penalty.'}
                   </p>
                 </div>
 

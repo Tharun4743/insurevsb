@@ -470,7 +470,7 @@ async function processTelemetryReading(reading: z.infer<typeof SingleTelemetrySc
     try {
       const validation = validateReadings(tripReadings);
       const metrics = extractFeatures(tripReadings, validation);
-      const scoreResult = calculateScore(metrics);
+      const scoreResult = calculateScore(metrics, { allowProvisional: true, isLiveIot: true });
 
       // Save trip_metrics
       const metricsData = {
