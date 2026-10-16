@@ -13,7 +13,6 @@ const TripsPage = lazy(() => import('./pages/TripsPage'));
 const TripDetailPage = lazy(() => import('./pages/TripDetailPage'));
 const ReviewPage = lazy(() => import('./pages/ReviewPage'));
 const AuditPage = lazy(() => import('./pages/AuditPage'));
-const ProfitabilityPage = lazy(() => import('./pages/ProfitabilityPage'));
 
 // ── Lazy-loaded Auth Routes (Instant login & onboarding) ──
 const LoginPage = lazy(() => import('./pages/LoginPage'));
@@ -96,7 +95,6 @@ export default function App() {
                     </ProtectedRoute>
                   }
                 />
-                <Route path="profitability" element={<ProfitabilityPage />} />
                 <Route path="simulator" element={<SimulatorPage />} />
                 <Route path="trips" element={<TripsPage />} />
                 <Route path="trips/:id" element={<TripDetailPage />} />

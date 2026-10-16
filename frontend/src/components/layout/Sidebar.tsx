@@ -34,18 +34,19 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const customerNavItems = [
     { to: '/',              icon: LayoutDashboard, label: 'My Policy & Driving',    iconColor: 'text-slate-900' },
     { to: '/trips',         icon: Car,             label: 'Trip History',            iconColor: 'text-blue-500' },
-    { to: '/simulator',     icon: Activity,        label: 'IoT Live Stream & Sim',   iconColor: 'text-emerald-500' },
+    { to: '/simulator',     icon: Activity,        label: 'IoT Driving Simulator',   iconColor: 'text-emerald-500' },
   ];
 
   const adminNavItems = [
     { to: '/admin',         icon: LayoutDashboard, label: 'Admin Portfolio',         iconColor: 'text-slate-900' },
-    { to: '/profitability', icon: TrendingUp,      label: 'Portfolio Economics',     iconColor: 'text-amber-500' },
+    { to: '/simulator',     icon: Activity,        label: 'IoT Driving Simulator',   iconColor: 'text-emerald-500' },
     { to: '/audit',         icon: FileText,        label: 'Audit Trail',             iconColor: 'text-pink-500' },
   ];
 
   const complianceNavItems = [
     { to: '/compliance',    icon: LayoutDashboard, label: 'Compliance Overview',     iconColor: 'text-slate-900' },
     { to: '/review',        icon: ShieldAlert,     label: 'Underwriting Review',     iconColor: 'text-emerald-500' },
+    { to: '/simulator',     icon: Activity,        label: 'IoT Driving Simulator',   iconColor: 'text-blue-500' },
     { to: '/audit',         icon: FileText,        label: 'Fairness Audit Log',      iconColor: 'text-pink-500' },
   ];
 
