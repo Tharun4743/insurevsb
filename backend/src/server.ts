@@ -29,6 +29,7 @@ import reviewRoutes from './routes/review';
 import auditRoutes from './routes/audit';
 import accidentRoutes from './routes/accidents';
 import profitabilityRoutes from './routes/profitability';
+import iotRoutes from './routes/iot';
 
 const app = express();
 
@@ -77,7 +78,7 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Device-Key'],
 }));
 
 // ── Body parsing & compression ────────────────────────────────────────────────
@@ -116,6 +117,7 @@ app.use('/api/review',        reviewRoutes);
 app.use('/api/audit',         auditRoutes);
 app.use('/api/accidents',     accidentRoutes);
 app.use('/api/profitability', profitabilityRoutes);
+app.use('/api/iot',           iotRoutes);
 
 // ── 404 catch-all ─────────────────────────────────────────────────────────────
 app.use((req: Request, res: Response) => {

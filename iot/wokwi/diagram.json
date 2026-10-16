@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "author": "INSURE IoT Team",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-devkit-c-v4",
+      "id": "esp",
+      "top": 0,
+      "left": 0,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_impact",
+      "top": -80,
+      "left": 180,
+      "attrs": { "color": "red", "label": "Impact / Collision" }
+    },
+    {
+      "type": "wokwi-slide-switch",
+      "id": "sw_helmet",
+      "top": -80,
+      "left": 60,
+      "attrs": { "label": "Helmet Sensor (ON=Safe)" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led_green",
+      "top": -40,
+      "left": -60,
+      "attrs": { "color": "green", "label": "Telemetry Active" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led_red",
+      "top": -80,
+      "left": -60,
+      "attrs": { "color": "red", "label": "Collision Alert" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 20,
+      "left": -60,
+      "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": 60,
+      "left": -60,
+      "attrs": { "value": "220" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "btn_impact:1.l", "esp:18", "red", [ "v0" ] ],
+    [ "btn_impact:2.l", "esp:GND.2", "black", [ "v0" ] ],
+    [ "sw_helmet:1", "esp:19", "blue", [ "v0" ] ],
+    [ "sw_helmet:2", "esp:GND.2", "black", [ "v0" ] ],
+    [ "esp:22", "r1:1", "green", [ "v0" ] ],
+    [ "r1:2", "led_green:A", "green", [ "v0" ] ],
+    [ "led_green:C", "esp:GND.1", "black", [ "v0" ] ],
+    [ "esp:23", "r2:1", "red", [ "v0" ] ],
+    [ "r2:2", "led_red:A", "red", [ "v0" ] ],
+    [ "led_red:C", "esp:GND.1", "black", [ "v0" ] ]
+  ],
+  "dependencies": {}
+}

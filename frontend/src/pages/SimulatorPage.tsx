@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   Play, Pause, Square, RotateCcw, CheckCircle, AlertTriangle, XCircle, Zap,
-  Shield, Scale, Activity, FileText, AlertCircle, Info, Clock
+  Shield, Scale, Activity, FileText, AlertCircle, Info, Clock, Cpu
 } from 'lucide-react';
 import {
   getScenarios,
@@ -18,6 +18,7 @@ import {
   LoadingSpinner, StatusBadge, ErrorBanner, DisclaimerBanner, ScoreGauge
 } from '../components/ui';
 import { useNavigate } from 'react-router-dom';
+import IotTelematicsMonitor from '../components/IotTelematicsMonitor';
 
 interface Scenario {
   id: string;
@@ -59,6 +60,7 @@ export default function SimulatorPage() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sessionState, setSessionState] = useState<'idle' | 'running' | 'paused' | 'stopped' | 'completed'>('idle');
   const [sessionActionLoading, setSessionActionLoading] = useState(false);
+  const [mode, setMode] = useState<'iot_live' | 'software_sim'>('iot_live');
 
   const init = useCallback(async () => {
     setLoadingPage(true);
@@ -201,8 +203,41 @@ export default function SimulatorPage() {
         </div>
       )}
 
-      {/* Config panel */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* Mode Switcher Tabs */}
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
+        <button
+          id="btn-tab-iot-live"
+          onClick={() => setMode('iot_live')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+            mode === 'iot_live'
+              ? 'bg-brand-600 text-white shadow-sm'
+              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+          }`}
+        >
+          <Cpu className="w-4 h-4" />
+          <span>Virtual IoT Telematics (Wokwi ESP32 Live Stream)</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+        </button>
+
+        <button
+          id="btn-tab-software-sim"
+          onClick={() => setMode('software_sim')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+            mode === 'software_sim'
+              ? 'bg-brand-600 text-white shadow-sm'
+              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+          }`}
+        >
+          <Activity className="w-4 h-4" />
+          <span>Batch Software Scenarios & Sessions</span>
+        </button>
+      </div>
+
+      {mode === 'iot_live' ? (
+        <IotTelematicsMonitor />
+      ) : (
+        /* Config panel */
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Scenario Selector */}
         <div className="lg:col-span-5 card">
           <div className="card-header flex items-center justify-between">
@@ -616,6 +651,7 @@ export default function SimulatorPage() {
           )}
         </div>
       </div>
+      )}
 
       <DisclaimerBanner />
     </div>

@@ -3,12 +3,14 @@ services:
     name: insure-backend
     runtime: node
     rootDir: backend
-    buildCommand: npm install
+    buildCommand: npm install && npm run build
     startCommand: npm start
     healthCheckPath: /api/health
     plan: free
     autoDeploy: true
     envVars:
+      - key: IOT_INGEST_API_KEY
+        sync: false
       - key: NODE_ENV
         value: production
       - key: PORT

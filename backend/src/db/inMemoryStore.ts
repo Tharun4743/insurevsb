@@ -23,9 +23,37 @@ export const store: Record<string, any[]> = {
   otp_challenges:                 [],
   password_reset_authorizations:  [],
   pricing_disputes:               [],
+  vehicles:                       [],
+  provider_configs:               [],
 };
 
 export const DEMO_USER_ID = process.env.DEMO_USER_ID || '00000000-0000-0000-0000-000000000001';
+
+// Pre-seed demo vehicles in in-memory fallback
+store.vehicles.push(
+  {
+    id: '00000000-0000-0000-0000-000000000101',
+    user_id: DEMO_USER_ID,
+    vehicle_identifier: 'INSURE-BIKE-001',
+    make: 'Ather',
+    model: '450X Gen 3',
+    year: 2024,
+    device_id: 'ESP32-DEV-001',
+    provider_id: 'iot_esp32_telematics',
+    status: 'active',
+  },
+  {
+    id: '00000000-0000-0000-0000-000000000102',
+    user_id: DEMO_USER_ID,
+    vehicle_identifier: 'INSURE-BIKE-002',
+    make: 'Ola Electric',
+    model: 'S1 Pro',
+    year: 2024,
+    device_id: 'ESP32-DEV-002',
+    provider_id: 'iot_esp32_telematics',
+    status: 'active',
+  }
+);
 
 export class QueryBuilder {
   private _table: string;

@@ -66,6 +66,16 @@ export const resetSimulationSession = (session_id: string) =>
 export const getSimulationSession = (session_id: string) =>
   api.get(`/simulator/session/${session_id}`).then(r => r.data);
 
+// ── Virtual IoT Telematics (Wokwi / Live Device Monitoring) ─────────────────
+export const getIotLatestTelemetry = (vehicleId?: string) =>
+  api.get(`/iot/telemetry/latest${vehicleId ? `?vehicleId=${vehicleId}` : ''}`).then(r => r.data);
+export const getIotTelemetryHistory = (vehicleId: string, limit = 50) =>
+  api.get(`/iot/telemetry/${vehicleId}?limit=${limit}`).then(r => r.data);
+export const getIotAlerts = () =>
+  api.get('/iot/alerts').then(r => r.data);
+export const getIotVehicles = () =>
+  api.get('/iot/vehicles').then(r => r.data);
+
 // ── Trips ─────────────────────────────────────────────────────────────────────
 export const getTrips       = (limit = 50) => api.get(`/trips?limit=${limit}`).then(r => r.data);
 export const getTrip        = (id: string) => api.get(`/trips/${id}`).then(r => r.data);
