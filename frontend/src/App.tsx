@@ -4,23 +4,45 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import AppShell from './components/layout/AppShell';
 
+// ── Robust Lazy Loader with Automatic Retry on Stale Deployment Chunks ──
+function lazyWithRetry<T extends React.ComponentType<any>>(
+  factory: () => Promise<{ default: T }>
+): React.LazyExoticComponent<T> {
+  return lazy(async () => {
+    const isRetried = window.sessionStorage.getItem('chunk_retry_pending') === 'true';
+    try {
+      const module = await factory();
+      window.sessionStorage.removeItem('chunk_retry_pending');
+      return module;
+    } catch (error: any) {
+      if (!isRetried) {
+        console.warn('[ChunkLoader] Stale chunk hash detected after deployment. Auto-refreshing...', error);
+        window.sessionStorage.setItem('chunk_retry_pending', 'true');
+        window.location.reload();
+        return new Promise(() => {}); // Wait for browser reload
+      }
+      throw error;
+    }
+  });
+}
+
 // ── Lazy-loaded Core Application Routes (TSX Code Splitting) ──
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
-const ComplianceDashboard = lazy(() => import('./pages/ComplianceDashboard'));
-const SimulatorPage = lazy(() => import('./pages/SimulatorPage'));
-const TripsPage = lazy(() => import('./pages/TripsPage'));
-const TripDetailPage = lazy(() => import('./pages/TripDetailPage'));
-const ReviewPage = lazy(() => import('./pages/ReviewPage'));
-const AuditPage = lazy(() => import('./pages/AuditPage'));
+const Dashboard = lazyWithRetry(() => import('./pages/Dashboard'));
+const AdminDashboard = lazyWithRetry(() => import('./pages/AdminDashboard'));
+const ComplianceDashboard = lazyWithRetry(() => import('./pages/ComplianceDashboard'));
+const SimulatorPage = lazyWithRetry(() => import('./pages/SimulatorPage'));
+const TripsPage = lazyWithRetry(() => import('./pages/TripsPage'));
+const TripDetailPage = lazyWithRetry(() => import('./pages/TripDetailPage'));
+const ReviewPage = lazyWithRetry(() => import('./pages/ReviewPage'));
+const AuditPage = lazyWithRetry(() => import('./pages/AuditPage'));
 
 // ── Lazy-loaded Auth Routes (Instant login & onboarding) ──
-const LoginPage = lazy(() => import('./pages/LoginPage'));
-const SignupPage = lazy(() => import('./pages/SignupPage'));
-const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'));
-const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
-const VerifyResetCodePage = lazy(() => import('./pages/VerifyResetCodePage'));
-const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
+const LoginPage = lazyWithRetry(() => import('./pages/LoginPage'));
+const SignupPage = lazyWithRetry(() => import('./pages/SignupPage'));
+const VerifyEmailPage = lazyWithRetry(() => import('./pages/VerifyEmailPage'));
+const ForgotPasswordPage = lazyWithRetry(() => import('./pages/ForgotPasswordPage'));
+const VerifyResetCodePage = lazyWithRetry(() => import('./pages/VerifyResetCodePage'));
+const ResetPasswordPage = lazyWithRetry(() => import('./pages/ResetPasswordPage'));
 
 function PageLoader() {
   return (
