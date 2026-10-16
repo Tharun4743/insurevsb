@@ -413,7 +413,7 @@ async function processTelemetryReading(reading: z.infer<typeof SingleTelemetrySc
         claim_severity: severity,
         claim_amount: 0.00, // Provisional: zero until assessed
         is_verified: false, // Provisional alert requiring review
-        description: `[SYNTHETIC IoT ALERT] Collision threshold triggered. Impact: ${reading.impact_magnitude_g || 1.0}g, Decel: ${reading.acceleration_ms2} m/s². Fault status: UNKNOWN. Provisional incident pending review.`,
+        description: `[PROVISIONAL IoT COLLISION ALERT] Impact: ${reading.impact_magnitude_g || 1.0}g, Decel: ${reading.acceleration_ms2} m/s². Fault status: UNKNOWN. Provisional incident pending human review.`,
         event_id: reading.eventId,
         vehicle_id: reading.vehicleId,
         device_id: reading.deviceId,

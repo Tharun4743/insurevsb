@@ -30,31 +30,22 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     navigate('/login');
   };
 
-  // Dedicated InsurTech & IoT Telematics navigation modules
+  // Clean, Role-Tailored Navigation Modules
   const customerNavItems = [
-    { to: '/',              icon: LayoutDashboard, label: 'Dashboard',               iconColor: 'text-slate-900' },
-    { to: '/trips',         icon: Car,             label: 'Trip Telematics',         iconColor: 'text-blue-500' },
-    { to: '/simulator',     icon: Activity,        label: 'IoT Driving Simulator',   iconColor: 'text-emerald-500' },
-    { to: '/assessments',   icon: Award,           label: 'Risk Assessments',        iconColor: 'text-purple-500' },
-    { to: '/consent',       icon: ShieldCheck,     label: 'Privacy & Consent',       iconColor: 'text-rose-500' },
-    { to: '/review',        icon: UserCheck,       label: 'Underwriting Review',     iconColor: 'text-indigo-500' },
-    { to: '/profitability', icon: TrendingUp,      label: 'Portfolio Growth',        iconColor: 'text-amber-500' },
-    { to: '/audit',         icon: FileText,        label: 'Compliance Audit Trail',  iconColor: 'text-pink-500' },
+    { to: '/',              icon: LayoutDashboard, label: 'My Policy & Driving',    iconColor: 'text-slate-900' },
+    { to: '/trips',         icon: Car,             label: 'Trip History',            iconColor: 'text-blue-500' },
+    { to: '/simulator',     icon: Activity,        label: 'IoT Live Stream & Sim',   iconColor: 'text-emerald-500' },
   ];
 
   const adminNavItems = [
     { to: '/admin',         icon: LayoutDashboard, label: 'Admin Portfolio',         iconColor: 'text-slate-900' },
-    { to: '/trips',         icon: Car,             label: 'Fleet Telematics',        iconColor: 'text-blue-500' },
-    { to: '/simulator',     icon: Activity,        label: 'IoT Simulator',           iconColor: 'text-emerald-500' },
-    { to: '/profitability', icon: TrendingUp,      label: 'Underwriting Economics',  iconColor: 'text-amber-500' },
+    { to: '/profitability', icon: TrendingUp,      label: 'Portfolio Economics',     iconColor: 'text-amber-500' },
     { to: '/audit',         icon: FileText,        label: 'Audit Trail',             iconColor: 'text-pink-500' },
   ];
 
   const complianceNavItems = [
     { to: '/compliance',    icon: LayoutDashboard, label: 'Compliance Overview',     iconColor: 'text-slate-900' },
-    { to: '/review',        icon: ShieldAlert,     label: 'Disputes & Reviews',      iconColor: 'text-emerald-500' },
-    { to: '/assessments',   icon: Award,           label: 'Risk Scoring Audits',     iconColor: 'text-purple-500' },
-    { to: '/consent',       icon: ShieldCheck,     label: 'Consent Governance',      iconColor: 'text-rose-500' },
+    { to: '/review',        icon: ShieldAlert,     label: 'Underwriting Review',     iconColor: 'text-emerald-500' },
     { to: '/audit',         icon: FileText,        label: 'Fairness Audit Log',      iconColor: 'text-pink-500' },
   ];
 

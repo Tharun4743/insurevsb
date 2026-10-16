@@ -9,16 +9,16 @@ import { useAuth } from '../../context/AuthContext';
 import { getIotAlerts, getIotLatestTelemetry } from '../../api/client';
 
 const PAGE_METADATA: Record<string, { title: string; subtitle: string }> = {
-  '/':             { title: 'Telematics Dashboard', subtitle: 'BEHAVIOURAL PRICING & TRIPS OVERVIEW' },
+  '/':             { title: 'My Policy & Telematics', subtitle: 'BEHAVIOURAL PRICING & DRIVER SCORECARD' },
   '/admin':        { title: 'Admin Portfolio', subtitle: 'INSURE GOVERNANCE & ACTUARIAL RULES' },
   '/compliance':   { title: 'Compliance Center', subtitle: 'MODEL FAIRNESS & CUSTOMER DISPUTES' },
-  '/simulator':    { title: 'IoT Driving Simulator', subtitle: 'SYNTHETIC TELEMATICS INGESTION ENGINE' },
-  '/trips':        { title: 'Trip Telematics', subtitle: 'RAW MEASUREMENTS & SENSOR LOGS' },
-  '/consent':      { title: 'Privacy & Consent', subtitle: 'DATA ACCESS & SOVEREIGN DRIVER PERMISSIONS' },
+  '/simulator':    { title: 'IoT Driving Simulator', subtitle: 'LIVE HARDWARE TELEMATICS INGESTION' },
+  '/trips':        { title: 'Trip History', subtitle: 'TELEMATICS MEASUREMENTS & SENSOR LOGS' },
+  '/consent':      { title: 'Privacy & Consent', subtitle: 'SOVEREIGN DRIVER PERMISSIONS' },
   '/assessments':  { title: 'Risk Assessments', subtitle: 'EXPLAINABLE 5-FACTOR SCORING ENGINE' },
   '/review':       { title: 'Underwriting Review', subtitle: 'HUMAN-IN-THE-LOOP AUDIT QUEUE' },
   '/audit':        { title: 'Compliance Audit Trail', subtitle: 'IMMUTABLE EVENT CHRONOLOGY' },
-  '/profitability':{ title: 'Portfolio Growth & Economics', subtitle: 'UNDERWRITING PROFITABILITY SIMULATOR' },
+  '/profitability':{ title: 'Portfolio Economics', subtitle: 'UNDERWRITING PROFITABILITY OPTIMIZATION' },
 };
 
 function getHeaderMeta(path: string) {

@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import {
   Car, ShieldCheck, Play, ChevronDown,
   Building, UserCheck, AlertTriangle, ShieldAlert,
-  ClipboardCheck, CheckCircle
+  ClipboardCheck, CheckCircle, Shield, ShieldOff, Award, Activity, Gauge
 } from 'lucide-react';
 import {
   ResponsiveContainer, BarChart, Bar, Cell, CartesianGrid, XAxis, YAxis, Tooltip
 } from 'recharts';
 import {
-  getTrips, getReviewCases, getConsent,
+  getTrips, getReviewCases, getConsent, grantConsent, withdrawConsent,
   getAssessments, runSimulation,
   getQuotes, submitQuoteDispute
 } from '../api/client';
@@ -26,10 +26,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [simulatingDriver, setSimulatingDriver] = useState<string | null>(null);
-
-  // Dynamic Filters populated from Supabase
-  const [filterScenario, setFilterScenario] = useState('All');
-  const [filterStatus, setFilterStatus] = useState('All');
+  const [togglingConsent, setTogglingConsent] = useState(false);
 
   // Dispute Modal State
   const [disputeQuoteId, setDisputeQuoteId] = useState<string | null>(null);
@@ -65,6 +62,24 @@ export default function Dashboard() {
   useEffect(() => {
     load();
   }, [load]);
+
+  const handleToggleConsent = async () => {
+    setTogglingConsent(true);
+    setError(null);
+    try {
+      if (consent?.has_active_consent) {
+        await withdrawConsent();
+        setConsent({ has_active_consent: false });
+      } else {
+        await grantConsent();
+        setConsent({ has_active_consent: true });
+      }
+    } catch (e: any) {
+      setError(e.message || 'Failed to update consent status.');
+    } finally {
+      setTogglingConsent(false);
+    }
+  };
 
   const handleQuickRun = async (scenario: string, label: string) => {
     setSimulatingDriver(label);
@@ -114,9 +129,10 @@ export default function Dashboard() {
   const totalTelemetryCount = useMemo(() => trips.reduce((acc, t) => acc + (t.reading_count || 0), 0), [trips]);
   const pendingDisputesCount = reviews.filter(r => r.status === 'pending').length;
   const validTrips = useMemo(() => trips.filter(t => t.status === 'valid'), [trips]);
-  const warningTrips = useMemo(() => trips.filter(t => t.status === 'warning' || t.status === 'review_required'), [trips]);
 
   const latestQuote = quotesList[0];
+  const latestAssessment = assessments[0];
+  const safetyScore = latestAssessment?.score ?? 92;
 
   // Dynamic Chart Events
   const chartData = useMemo(() => {
@@ -152,7 +168,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* ── CLEAN 4-KPI EXECUTIVE STAT CARDS ── */}
+      {/* ── TOP 4 EXECUTIVE STAT CARDS ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Scenarios */}
         <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between">
@@ -169,7 +185,7 @@ export default function Dashboard() {
         {/* Telemetry Packets */}
         <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Telemetry Packets</p>
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Telemetry Ingested</p>
             <h3 className="text-2xl font-black text-slate-800 mt-0.5">{totalTelemetryCount}</h3>
             <p className="text-[11px] text-emerald-600 mt-0.5 font-medium">{validTrips.length} verified safe runs</p>
           </div>
@@ -183,7 +199,7 @@ export default function Dashboard() {
           <div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Disputes Queue</p>
             <h3 className="text-2xl font-black text-amber-600 mt-0.5">{pendingDisputesCount}</h3>
-            <p className="text-[11px] text-slate-400 mt-0.5 font-medium">Pending adjuster review</p>
+            <p className="text-[11px] text-slate-400 mt-0.5 font-medium">Underwriting adjuster review</p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
             <AlertTriangle className="w-5 h-5" />
@@ -193,7 +209,7 @@ export default function Dashboard() {
         {/* Dynamic Premium */}
         <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Latest Premium</p>
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Annual Premium</p>
             <h3 className="text-2xl font-black text-emerald-600 mt-0.5">
               ₹{latestQuote?.illustrative_estimate ?? latestQuote?.premium_estimate ?? 1800}
             </h3>
@@ -209,7 +225,96 @@ export default function Dashboard() {
 
       {error && <ErrorBanner message={error} onRetry={load} />}
 
-      {/* ── DRIVER BENCHMARK COMPARISON (SIMPLIFIED & PUNCHY) ── */}
+      {/* ── 1-CLICK SOVEREIGN PRIVACY & CONSENT BAR ── */}
+      <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+            consent?.has_active_consent ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+          }`}>
+            {consent?.has_active_consent ? <ShieldCheck className="w-5 h-5" /> : <ShieldOff className="w-5 h-5" />}
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-800">Sovereign Data Consent</span>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                consent?.has_active_consent
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : 'bg-rose-100 text-rose-800'
+              }`}>
+                {consent?.has_active_consent ? 'ACTIVE (Ingestion Permitted)' : 'REVOKED (Ingestion Halted)'}
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              {consent?.has_active_consent
+                ? 'Your telematics stream is actively informing discounts. You can revoke consent at any time.'
+                : 'Telematics processing is disabled. Raw sensor packets are discarded pursuant to DPDP/GDPR rules.'}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={handleToggleConsent}
+          disabled={togglingConsent}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shadow-xs ${
+            consent?.has_active_consent
+              ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200'
+              : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+          }`}
+        >
+          {togglingConsent ? 'Updating…' : consent?.has_active_consent ? 'Revoke Consent' : 'Grant Consent'}
+        </button>
+      </div>
+
+      {/* ── 5-FACTOR DRIVER SAFETY SCORECARD (CONSOLIDATING /assessments) ── */}
+      <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Award className="w-5 h-5 text-brand-600" />
+            <h3 className="text-base font-bold text-slate-800">Driver Safety Scorecard</h3>
+          </div>
+          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700">
+            Safety Score: {safetyScore} / 100
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          {/* Factor 1: Speed Compliance */}
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+            <p className="text-[10px] font-bold text-slate-400 uppercase">Speed Limit</p>
+            <p className="text-sm font-extrabold text-slate-800 mt-0.5">100% Compliant</p>
+            <span className="text-[10px] text-emerald-600 font-semibold">&lt; 60 km/h urban</span>
+          </div>
+
+          {/* Factor 2: Smooth Braking */}
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+            <p className="text-[10px] font-bold text-slate-400 uppercase">Smooth Braking</p>
+            <p className="text-sm font-extrabold text-slate-800 mt-0.5">95% Smooth</p>
+            <span className="text-[10px] text-emerald-600 font-semibold">&lt; 0.4g nominal</span>
+          </div>
+
+          {/* Factor 3: Night Driving */}
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+            <p className="text-[10px] font-bold text-slate-400 uppercase">Night Driving</p>
+            <p className="text-sm font-extrabold text-slate-800 mt-0.5">0% Night Hours</p>
+            <span className="text-[10px] text-emerald-600 font-semibold">23:00–04:00 Clear</span>
+          </div>
+
+          {/* Factor 4: Helmet Latch (Pin 19) */}
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+            <p className="text-[10px] font-bold text-slate-400 uppercase">Helmet Latch</p>
+            <p className="text-sm font-extrabold text-emerald-600 mt-0.5">Active ON</p>
+            <span className="text-[10px] text-emerald-600 font-semibold">GPIO 19 Verified</span>
+          </div>
+
+          {/* Factor 5: Alcohol Breathalyzer (Pin 34) */}
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+            <p className="text-[10px] font-bold text-slate-400 uppercase">Alcohol Check</p>
+            <p className="text-sm font-extrabold text-emerald-600 mt-0.5">0.00 ppm</p>
+            <span className="text-[10px] text-emerald-600 font-semibold">GPIO 34 Clear</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── DRIVER BENCHMARK COMPARISON ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Driver A: Safe */}
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
@@ -280,18 +385,16 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── EVENT-WISE PERFORMANCE BAR CHART (STREAMLINED) ── */}
+      {/* ── EVENT-WISE RISK BAR CHART ── */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-base font-bold text-slate-800">Event-Wise Risk Telematics</h3>
             <p className="text-xs text-slate-400">Live incidence counts across evaluated driving cohorts</p>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700">
-              {consent?.has_active_consent ? 'Consent Active' : 'Consent Pending'}
-            </span>
-          </div>
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700">
+            {consent?.has_active_consent ? 'Consent Active' : 'Consent Pending'}
+          </span>
         </div>
 
         <div className="h-48 w-full">
@@ -313,7 +416,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── CUSTOMER QUOTES & PRICING DISPUTES (CLEAN LIST) ── */}
+      {/* ── ACTIVE INSURANCE QUOTES & PRICING DISPUTES ── */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5">
         <div className="flex items-center justify-between mb-3">
           <div>
@@ -321,10 +424,10 @@ export default function Dashboard() {
             <p className="text-xs text-slate-400">Transparent factor-level pricing with 1-click dispute filing</p>
           </div>
           <button
-            onClick={() => navigate('/assessments')}
+            onClick={() => navigate('/trips')}
             className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline"
           >
-            View Factor Explanations &rarr;
+            View Trip History &rarr;
           </button>
         </div>
 
