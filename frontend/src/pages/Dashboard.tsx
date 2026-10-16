@@ -194,15 +194,15 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Dispute Queue */}
+        {/* Driver Safety Score */}
         <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Disputes Queue</p>
-            <h3 className="text-2xl font-black text-amber-600 mt-0.5">{pendingDisputesCount}</h3>
-            <p className="text-[11px] text-slate-400 mt-0.5 font-medium">Underwriting adjuster review</p>
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Safety Score</p>
+            <h3 className="text-2xl font-black text-brand-600 dark:text-emerald-500 mt-0.5">{safetyScore} <span className="text-sm font-semibold text-slate-400">/ 100</span></h3>
+            <p className="text-[11px] text-emerald-600 mt-0.5 font-medium">{safetyScore >= 80 ? 'Tier A · Low Risk Driver' : 'Standard Risk Driver'}</p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-            <AlertTriangle className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <Award className="w-5 h-5" />
           </div>
         </div>
 

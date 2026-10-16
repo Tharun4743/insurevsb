@@ -138,10 +138,10 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-              LOSS RATIO
+              AVG ANNUAL PREMIUM
             </p>
             <h3 className="text-3xl font-extrabold text-slate-800 tracking-tight">
-              {portfolio?.lossRatio ?? '0.0%'}
+              ₹{(portfolio?.avgAnnualPremium ?? 1800).toLocaleString('en-IN')}
             </h3>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-xs">
@@ -152,14 +152,14 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-              COMBINED RATIO
+              ACTIVE DISPUTES
             </p>
             <h3 className="text-3xl font-extrabold text-slate-800 tracking-tight">
-              {portfolio?.combinedRatio ?? '0.0%'}
+              {portfolio?.activeDisputes ?? 0}
             </h3>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-orange-500 text-white flex items-center justify-center shadow-xs">
-            <ClipboardCheck className="w-6 h-6" />
+            <AlertTriangle className="w-6 h-6" />
           </div>
         </div>
       </div>
