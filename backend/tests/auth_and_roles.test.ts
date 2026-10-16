@@ -282,19 +282,21 @@ describe('INSURE Authentication, OTP, Brevo SMTP, and RBAC Test Suite', () => {
       await seedPrivilegedUsers();
 
       // Log in admin
+      const adminEmail = (process.env.ADMIN_EMAIL || 'tharunkumark42007@gmail.com').trim().toLowerCase();
       const adminRes = await request(app)
         .post('/api/auth/login')
         .send({
-          email: 'admin@insure.test',
+          email: adminEmail,
           password: '123456',
         });
       adminToken = adminRes.body.token;
 
       // Log in compliance officer
+      const complianceEmail = (process.env.COMPLIANCE_EMAIL || 'vsbecitc2428@gmail.com').trim().toLowerCase();
       const compRes = await request(app)
         .post('/api/auth/login')
         .send({
-          email: 'compliance@insure.test',
+          email: complianceEmail,
           password: '123456',
         });
       complianceToken = compRes.body.token;

@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import AppShell from './components/layout/AppShell';
 
 // ── Lazy-loaded Core Application Routes (TSX Code Splitting) ──
@@ -59,56 +60,58 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactEleme
 export default function App() {
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <AuthProvider>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            {/* Public Auth Routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/verify-email" element={<VerifyEmailPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/verify-reset-code" element={<VerifyResetCodePage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <ThemeProvider>
+        <AuthProvider>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* Public Auth Routes */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/verify-email" element={<VerifyEmailPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/verify-reset-code" element={<VerifyResetCodePage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-            {/* Protected Application Routes inside AppShell */}
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <AppShell />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<Dashboard />} />
+              {/* Protected Application Routes inside AppShell */}
               <Route
-                path="admin"
+                path="/"
                 element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <AdminDashboard />
+                  <ProtectedRoute>
+                    <AppShell />
                   </ProtectedRoute>
                 }
-              />
-              <Route
-                path="compliance"
-                element={
-                  <ProtectedRoute allowedRoles={['compliance_officer', 'admin']}>
-                    <ComplianceDashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="profitability" element={<ProfitabilityPage />} />
-              <Route path="consent" element={<ConsentPage />} />
-              <Route path="simulator" element={<SimulatorPage />} />
-              <Route path="trips" element={<TripsPage />} />
-              <Route path="trips/:id" element={<TripDetailPage />} />
-              <Route path="assessments" element={<AssessmentsPage />} />
-              <Route path="review" element={<ReviewPage />} />
-              <Route path="audit" element={<AuditPage />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Route>
-          </Routes>
-        </Suspense>
-      </AuthProvider>
+              >
+                <Route index element={<Dashboard />} />
+                <Route
+                  path="admin"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="compliance"
+                  element={
+                    <ProtectedRoute allowedRoles={['compliance_officer', 'admin']}>
+                      <ComplianceDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="profitability" element={<ProfitabilityPage />} />
+                <Route path="consent" element={<ConsentPage />} />
+                <Route path="simulator" element={<SimulatorPage />} />
+                <Route path="trips" element={<TripsPage />} />
+                <Route path="trips/:id" element={<TripDetailPage />} />
+                <Route path="assessments" element={<AssessmentsPage />} />
+                <Route path="review" element={<ReviewPage />} />
+                <Route path="audit" element={<AuditPage />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Route>
+            </Routes>
+          </Suspense>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

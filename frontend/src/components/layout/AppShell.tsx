@@ -29,6 +29,8 @@ function getHeaderMeta(path: string) {
   return { title: 'Telematics Dashboard', subtitle: 'BEHAVIOURAL PRICING & TRIPS OVERVIEW' };
 }
 
+import { useTheme } from '../../context/ThemeContext';
+
 interface NotificationItem {
   id: string;
   title: string;
@@ -40,10 +42,7 @@ interface NotificationItem {
 
 export default function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState<boolean>(() => {
-    return localStorage.getItem('insure_theme') === 'dark' ||
-      window.matchMedia('(prefers-color-scheme: dark)').matches;
-  });
+  const { isDark, toggleTheme } = useTheme();
   const [showNotifications, setShowNotifications] = useState(false);
   const [exportingReport, setExportingReport] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
@@ -79,17 +78,6 @@ export default function AppShell() {
   const { role } = useAuth();
   const meta = getHeaderMeta(location.pathname);
 
-  // Sync dark mode class on <html> element
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('insure_theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('insure_theme', 'light');
-    }
-  }, [darkMode]);
-
   // Load live IoT alerts into notification center
   useEffect(() => {
     getIotAlerts()
@@ -110,10 +98,6 @@ export default function AppShell() {
   }, []);
 
   const unreadCount = notifications.filter(n => !n.read).length;
-
-  const toggleDarkMode = () => {
-    setDarkMode(prev => !prev);
-  };
 
   const markAllAsRead = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
@@ -166,11 +150,11 @@ export default function AppShell() {
   };
 
   return (
-    <div className={`flex h-screen overflow-hidden ${darkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-[#f8fafc] text-slate-800'}`}>
+    <div className={`flex h-screen overflow-hidden ${isDark ? 'dark bg-slate-950 text-slate-100' : 'bg-[#f8fafc] text-slate-800'}`}>
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col lg:ml-64 min-w-0">
+      <div className="flex-1 flex flex-col lg:ml-64 min-w-0 bg-[#f8fafc] dark:bg-slate-950">
         {/* Top Header */}
         <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between px-4 lg:px-8 flex-shrink-0 z-10 transition-colors">
           <div className="flex items-center gap-3.5">
@@ -221,11 +205,21 @@ export default function AppShell() {
             {/* Functional Sun / Dark Mode Toggle */}
             <button
               id="btn-theme-toggle"
-              onClick={toggleDarkMode}
-              title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-amber-500 dark:text-amber-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              onClick={toggleTheme}
+              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-amber-400 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-colors cursor-pointer text-xs font-semibold shadow-xs"
             >
-              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5 text-slate-600" />}
+              {isDark ? (
+                <>
+                  <Sun className="w-4 h-4 text-amber-400" />
+                  <span className="hidden md:inline font-bold">Light</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="w-4 h-4 text-slate-600" />
+                  <span className="hidden md:inline font-bold">Dark</span>
+                </>
+              )}
             </button>
 
             {/* Functional Notification Bell with Active Flyout */}
@@ -319,7 +313,7 @@ export default function AppShell() {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50/50 dark:bg-slate-950 transition-colors">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-[#f8fafc] dark:bg-slate-950 transition-colors">
           <Outlet />
         </main>
       </div>
