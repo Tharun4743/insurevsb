@@ -348,31 +348,28 @@ export function IotTelematicsMonitor() {
       </div>
 
       {/* ── ⚡ Real Live Driving Simulation Controller ────────────────────── */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl border border-indigo-800/80 p-4 shadow-sm">
+      <div className="bg-slate-900 text-white rounded-2xl border border-slate-800 p-3.5 shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <div className={`p-2 rounded-xl ${isSimulating ? 'bg-emerald-500/20 text-emerald-400 animate-pulse' : 'bg-white/10 text-slate-300'}`}>
-              <Radio className="w-5 h-5" />
+              <Radio className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-white">
-                  Live Drive Simulator Streamer
+                <span className="text-xs font-bold text-white">
+                  Live Drive Streamer
                 </span>
                 {isSimulating ? (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 animate-pulse flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                    STREAMING ACTIVE ({packetCount} pkts sent)
+                    STREAMING ({packetCount} pkts)
                   </span>
                 ) : (
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-slate-400 border border-white/10">
-                    Ready to stream live data
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-white/10 text-slate-400">
+                    Ready to stream live
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-slate-300 mt-0.5">
-                Generate and stream real ESP32 telematics packets directly into Supabase PostgreSQL for live actuarial pricing.
-              </p>
             </div>
           </div>
 
@@ -934,15 +931,13 @@ export function IotTelematicsMonitor() {
             <table className="w-full text-xs text-left">
               <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
                 <tr>
-                  <th className="py-2.5 px-3">Event ID</th>
-                  <th className="py-2.5 px-3">Seq #</th>
                   <th className="py-2.5 px-3">Time</th>
                   <th className="py-2.5 px-3">Speed</th>
                   <th className="py-2.5 px-3">Accel</th>
                   <th className="py-2.5 px-3">Impact</th>
                   <th className="py-2.5 px-3">Helmet</th>
-                  <th className="py-2.5 px-3">Alcohol (Pot)</th>
-                  <th className="py-2.5 px-3">Event Type</th>
+                  <th className="py-2.5 px-3">Alcohol</th>
+                  <th className="py-2.5 px-3">Event Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-mono">
@@ -955,12 +950,6 @@ export function IotTelematicsMonitor() {
                         : ''
                     }`}
                   >
-                    <td className="py-2 px-3 text-slate-600 text-[11px]">
-                      {row.event_id ? row.event_id.substring(0, 14) + '...' : row.id.substring(0, 8)}
-                    </td>
-                    <td className="py-2 px-3 font-semibold text-slate-800">
-                      {row.sequence_number}
-                    </td>
                     <td className="py-2 px-3 text-slate-500 text-[11px]">
                       {new Date(row.timestamp).toLocaleTimeString()}
                     </td>
@@ -986,7 +975,7 @@ export function IotTelematicsMonitor() {
                       <span
                         className={
                           row.impact_magnitude_g >= 5.0
-                            ? 'text-red-600 font-bold bg-red-100 px-1 py-0.5 rounded'
+                            ? 'text-red-600 font-bold bg-red-100 px-1.5 py-0.5 rounded'
                             : 'text-slate-700'
                         }
                       >
@@ -995,11 +984,11 @@ export function IotTelematicsMonitor() {
                     </td>
                     <td className="py-2 px-3 font-sans">
                       {row.helmet_detected !== false ? (
-                        <span className="text-emerald-700 text-[10px] font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                        <span className="text-emerald-700 text-[10px] font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                           ON
                         </span>
                       ) : (
-                        <span className="text-rose-700 text-[10px] font-bold bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
+                        <span className="text-rose-700 text-[10px] font-bold bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
                           OFF
                         </span>
                       )}
@@ -1010,7 +999,7 @@ export function IotTelematicsMonitor() {
                     <td className="py-2 px-3 font-sans">
                       {row.event_type === 'possible_collision' ? (
                         <span className="text-red-700 font-bold bg-red-100 px-2 py-0.5 rounded-full text-[10px]">
-                          COLLISION
+                          COLLISION ALERT
                         </span>
                       ) : row.event_type === 'harsh_event' ? (
                         <span className="text-amber-700 font-bold bg-amber-100 px-2 py-0.5 rounded-full text-[10px]">

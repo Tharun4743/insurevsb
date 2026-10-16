@@ -1,15 +1,12 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Car, ShieldCheck, Star, AlertTriangle,
-  Play, TrendingUp, Clock, CheckCircle,
-  ArrowRight, Activity, BarChart2, Zap, Scale,
-  AlertCircle, ChevronDown, CheckSquare, GraduationCap,
-  ClipboardCheck, Building, UserCheck, ShieldAlert
+  Car, ShieldCheck, Play, ChevronDown,
+  Building, UserCheck, AlertTriangle, ShieldAlert,
+  ClipboardCheck, CheckCircle
 } from 'lucide-react';
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, BarChart, Bar, Cell
+  ResponsiveContainer, BarChart, Bar, Cell, CartesianGrid, XAxis, YAxis, Tooltip
 } from 'recharts';
 import {
   getTrips, getReviewCases, getConsent,
@@ -99,12 +96,12 @@ export default function Dashboard() {
         reason: disputeReason,
         explanation: disputeExplanation,
       });
-      setDisputeSuccess('Your pricing dispute has been submitted to the Compliance Officer for review.');
+      setDisputeSuccess('Pricing dispute submitted to Compliance Officer.');
       setTimeout(() => {
         setDisputeQuoteId(null);
         setDisputeSuccess(null);
         load();
-      }, 2000);
+      }, 1800);
     } catch (err: any) {
       setDisputeError(err.message || 'Failed to submit pricing dispute.');
     } finally {
@@ -112,27 +109,16 @@ export default function Dashboard() {
     }
   };
 
-  // ── STRICT SUPABASE DERIVED METRICS (Zero Hardcoded Constants) ──────────────
-  const totalTripsCount = trips.length;
+  // Metrics derived from Supabase
   const distinctScenarios = useMemo(() => Array.from(new Set(trips.map(t => t.scenario))), [trips]);
-  const activeScenariosCount = distinctScenarios.length;
-  const registeredUsersCount = useMemo(() => new Set(trips.map(t => t.user_id)).size, [trips]);
-
-  // Aggregate actual readings count strictly from Supabase trips table
-  const totalTelemetryCount = useMemo(() => {
-    return trips.reduce((acc, t) => acc + (t.reading_count || 0), 0);
-  }, [trips]);
-
+  const totalTelemetryCount = useMemo(() => trips.reduce((acc, t) => acc + (t.reading_count || 0), 0), [trips]);
   const pendingDisputesCount = reviews.filter(r => r.status === 'pending').length;
-  const resolvedDisputesCount = reviews.filter(r => r.status === 'resolved').length;
-  const activeQuotesCount = quotesList.length;
-
   const validTrips = useMemo(() => trips.filter(t => t.status === 'valid'), [trips]);
   const warningTrips = useMemo(() => trips.filter(t => t.status === 'warning' || t.status === 'review_required'), [trips]);
-  const safeScenarios = useMemo(() => trips.filter(t => t.scenario.includes('safe') || t.scenario.includes('smooth')), [trips]);
-  const riskyScenarios = useMemo(() => trips.filter(t => t.scenario.includes('risky') || t.scenario.includes('harsh')), [trips]);
 
-  // Dynamic Chart Events computed strictly from actual Supabase assessment records
+  const latestQuote = quotesList[0];
+
+  // Dynamic Chart Events
   const chartData = useMemo(() => {
     let harshBraking = 0;
     let speeding = 0;
@@ -156,15 +142,6 @@ export default function Dashboard() {
     ];
   }, [assessments, validTrips]);
 
-  // Filtered trips list
-  const filteredTrips = useMemo(() => {
-    return trips.filter(t => {
-      if (filterScenario !== 'All' && t.scenario !== filterScenario) return false;
-      if (filterStatus !== 'All' && t.status !== filterStatus) return false;
-      return true;
-    });
-  }, [trips, filterScenario, filterStatus]);
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -175,387 +152,215 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* ── TOP 5 STAT / KPI CARDS (Calculated from Supabase Data) ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {/* Card 1: ACTIVE SCENARIOS */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+      {/* ── CLEAN 4-KPI EXECUTIVE STAT CARDS ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Scenarios */}
+        <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-              ACTIVE SCENARIOS
-            </p>
-            <h3 className="text-3xl font-extrabold text-slate-800 tracking-tight">
-              {activeScenariosCount}
-            </h3>
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Scenarios</p>
+            <h3 className="text-2xl font-black text-slate-800 mt-0.5">{distinctScenarios.length}</h3>
+            <p className="text-[11px] text-slate-400 mt-0.5 font-medium">{trips.length} total trips logged</p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
-            <Building className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+            <Building className="w-5 h-5" />
           </div>
         </div>
 
-        {/* Card 2: REGISTERED DRIVERS */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+        {/* Telemetry Packets */}
+        <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-              FLEET COHORTS
-            </p>
-            <h3 className="text-3xl font-extrabold text-slate-800 tracking-tight">
-              {registeredUsersCount}
-            </h3>
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Telemetry Packets</p>
+            <h3 className="text-2xl font-black text-slate-800 mt-0.5">{totalTelemetryCount}</h3>
+            <p className="text-[11px] text-emerald-600 mt-0.5 font-medium">{validTrips.length} verified safe runs</p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
-            <UserCheck className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <UserCheck className="w-5 h-5" />
           </div>
         </div>
 
-        {/* Card 3: TOTAL TELEMETRY */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+        {/* Dispute Queue */}
+        <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-              TOTAL TELEMETRY
-            </p>
-            <h3 className="text-3xl font-extrabold text-slate-800 tracking-tight">
-              {totalTelemetryCount}
-            </h3>
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Disputes Queue</p>
+            <h3 className="text-2xl font-black text-amber-600 mt-0.5">{pendingDisputesCount}</h3>
+            <p className="text-[11px] text-slate-400 mt-0.5 font-medium">Pending adjuster review</p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
-            <GraduationCap className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+            <AlertTriangle className="w-5 h-5" />
           </div>
         </div>
 
-        {/* Card 4: PENDING DISPUTES */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+        {/* Dynamic Premium */}
+        <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-              DISPUTES QUEUE
-            </p>
-            <h3 className="text-3xl font-extrabold text-slate-800 tracking-tight">
-              {pendingDisputesCount}
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Latest Premium</p>
+            <h3 className="text-2xl font-black text-emerald-600 mt-0.5">
+              ₹{latestQuote?.illustrative_estimate ?? latestQuote?.premium_estimate ?? 1800}
             </h3>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-xs flex-shrink-0">
-            <AlertTriangle className="w-6 h-6" />
-          </div>
-        </div>
-
-        {/* Card 5: ACTIVE QUOTES */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-              ACTIVE QUOTES
+            <p className="text-[11px] text-emerald-600 mt-0.5 font-medium">
+              {latestQuote?.risk_adjustment <= 0 ? '−10% Safe Discount' : '+20% Surcharge'}
             </p>
-            <h3 className="text-3xl font-extrabold text-slate-800 tracking-tight">
-              {activeQuotesCount}
-            </h3>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-orange-500 text-white flex items-center justify-center shadow-xs flex-shrink-0">
-            <ClipboardCheck className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <ClipboardCheck className="w-5 h-5" />
           </div>
         </div>
       </div>
 
       {error && <ErrorBanner message={error} onRetry={load} />}
 
-      {/* ── MAIN CLASS ANALYZER CARD ── */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 lg:p-7">
-        <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <h2 className="text-xl font-bold text-slate-800 tracking-tight">
-              Pricing & Telematics Analyzer
-            </h2>
-            <p className="text-xs font-medium text-slate-400 mt-1">
-              Real-time behavioural measurements directly loaded from Supabase PostgreSQL
-            </p>
-          </div>
-          <span className="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700">
-            Live Database Persistence
-          </span>
-        </div>
-
-        {/* Dynamic Filter Dropdowns Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-7">
-          {/* Scenario Filter */}
-          <div>
-            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-              SCENARIO
-            </label>
-            <div className="relative">
-              <select
-                value={filterScenario}
-                onChange={e => setFilterScenario(e.target.value)}
-                className="w-full appearance-none bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl px-3.5 py-2.5 pr-8 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
-              >
-                <option value="All">All Scenarios ({trips.length})</option>
-                {distinctScenarios.map(sc => (
-                  <option key={sc} value={sc}>{sc}</option>
-                ))}
-              </select>
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
-          </div>
-
-          {/* Status Filter */}
-          <div>
-            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-              STATUS
-            </label>
-            <div className="relative">
-              <select
-                value={filterStatus}
-                onChange={e => setFilterStatus(e.target.value)}
-                className="w-full appearance-none bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl px-3.5 py-2.5 pr-8 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
-              >
-                <option value="All">All Statuses</option>
-                <option value="valid">Valid / Compliant ({validTrips.length})</option>
-                <option value="warning">Warning / Review ({warningTrips.length})</option>
-              </select>
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
-          </div>
-
-          {/* Consent Status */}
-          <div>
-            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-              CONSENT STATUS
-            </label>
-            <div className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-emerald-700 flex items-center justify-between">
-              <span>{consent?.has_active_consent ? 'Active Consent Granted' : 'Consent Pending'}</span>
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            </div>
-          </div>
-
-          {/* Trips Loaded */}
-          <div>
-            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-              FILTERED RECORDS
-            </label>
-            <div className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-700 flex items-center justify-between">
-              <span>Showing {filteredTrips.length} of {trips.length} trips</span>
-              <Car className="w-4 h-4 text-slate-400" />
-            </div>
-          </div>
-        </div>
-
-        {/* ── 4 SUMMARY BREAKDOWN PILL BLOCKS (Derived dynamically from Supabase) ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {/* Block 1: TOTAL READINGS */}
-          <div className="bg-slate-50/70 border border-slate-100 rounded-2xl p-4 flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                TOTAL TELEMETRY
-              </p>
-              <p className="text-2xl font-black text-slate-800 mt-1">{totalTelemetryCount}</p>
-            </div>
-            <div className="space-y-1 text-right">
-              <span className="inline-block px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold">
-                Valid: {validTrips.length}
-              </span>
-              <br />
-              <span className="inline-block px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 text-xs font-semibold">
-                Warnings: {warningTrips.length}
-              </span>
-            </div>
-          </div>
-
-          {/* Block 2: EVALUATED TRIPS */}
-          <div className="bg-slate-50/70 border border-slate-100 rounded-2xl p-4 flex items-center justify-between border-l-4 border-l-blue-500">
-            <div>
-              <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">
-                EVALUATED RUNS
-              </p>
-              <p className="text-2xl font-black text-blue-600 mt-1">{totalTripsCount}</p>
-              <p className="text-[9px] text-slate-400 font-medium">Recorded in DB</p>
-            </div>
-            <div className="space-y-1 text-right">
-              <span className="inline-block px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-xs font-semibold">
-                Safe: {safeScenarios.length}
-              </span>
-              <br />
-              <span className="inline-block px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 text-xs font-semibold">
-                Risky: {riskyScenarios.length}
-              </span>
-            </div>
-          </div>
-
-          {/* Block 3: ACTIVE QUOTES */}
-          <div className="bg-slate-50/70 border border-slate-100 rounded-2xl p-4 flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
-                ACTIVE QUOTES
-              </p>
-              <p className="text-2xl font-black text-emerald-600 mt-1">{activeQuotesCount}</p>
-            </div>
-            <div className="space-y-1 text-right">
-              <span className="inline-block px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-xs font-semibold">
-                Base: ₹{quotesList[0]?.base_premium ?? 0}
-              </span>
-              <br />
-              <span className="inline-block px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold">
-                Rule: {quotesList[0]?.rule_version ?? 'Live'}
-              </span>
-            </div>
-          </div>
-
-          {/* Block 4: DISPUTES QUEUE */}
-          <div className="bg-slate-50/70 border border-slate-100 rounded-2xl p-4 flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold text-orange-600 uppercase tracking-wider">
-                DISPUTES QUEUE
-              </p>
-              <p className="text-2xl font-black text-orange-600 mt-1">{pendingDisputesCount}</p>
-            </div>
-            <div className="space-y-1 text-right">
-              <span className="inline-block px-2 py-0.5 rounded-md bg-orange-50 text-orange-700 text-xs font-semibold">
-                Pending: {pendingDisputesCount}
-              </span>
-              <br />
-              <span className="inline-block px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-semibold">
-                Resolved: {resolvedDisputesCount}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Event-Wise Performance Bar Chart ── */}
-        <div className="border-t border-slate-100 pt-6">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              EVENT-WISE PERFORMANCE (DERIVED FROM SUPABASE DATA)
-            </h4>
-            <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
-              Real-time DB Ingestion
-            </span>
-          </div>
-
-          <div className="h-56 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="event" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#0f172a', borderRadius: '12px', border: 'none', color: '#fff', fontSize: '12px' }}
-                />
-                <Bar dataKey="count" radius={[8, 8, 0, 0]}>
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      {/* ── DRIVER BENCHMARK SIMULATION ACTIONS ── */}
+      {/* ── DRIVER BENCHMARK COMPARISON (SIMPLIFIED & PUNCHY) ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Driver A (Safe) */}
+        {/* Driver A: Safe */}
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
-                Driver A · Safe Driver
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg">
+                🟢 Driver A · Safe Commute
               </span>
-              <span className="text-xs font-semibold text-slate-400">Zero Violations</span>
+              <span className="text-xs font-bold text-emerald-600">Score: 92–100</span>
             </div>
-            <p className="text-xs text-slate-600 mb-3">
-              Gentle deceleration, consistent speed compliance, verified telematics readings.
-            </p>
-            <div className="space-y-1.5 text-xs border-t border-slate-100 pt-2 font-mono">
-              <div className="flex justify-between"><span className="text-slate-400">Score:</span><span className="text-emerald-600 font-bold">100 / 100</span></div>
-              <div className="flex justify-between"><span className="text-slate-400">Adjustment:</span><span className="text-emerald-600 font-bold">−10% (−₹200)</span></div>
-              <div className="flex justify-between text-sm font-bold border-t border-slate-100 pt-1 text-slate-800">
-                <span>Illustrative Premium:</span>
-                <span className="text-emerald-600">₹1,800</span>
+            <div className="grid grid-cols-3 gap-2 py-2 border-y border-slate-100 text-center">
+              <div>
+                <p className="text-[10px] text-slate-400 font-bold uppercase">Speed</p>
+                <p className="text-sm font-bold text-slate-800">38 km/h</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-slate-400 font-bold uppercase">Helmet</p>
+                <p className="text-sm font-bold text-emerald-600">Active</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-slate-400 font-bold uppercase">Premium</p>
+                <p className="text-sm font-bold text-emerald-600">₹1,800</p>
               </div>
             </div>
           </div>
           <button
             onClick={() => handleQuickRun('scenario_a_safe', 'Driver A')}
             disabled={simulatingDriver !== null}
-            className="mt-4 w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-semibold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+            className="mt-4 w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-semibold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
           >
             <Play className="w-3.5 h-3.5" />
-            {simulatingDriver === 'Driver A' ? 'Simulating…' : 'Simulate Driver A (Safe)'}
+            {simulatingDriver === 'Driver A' ? 'Simulating…' : 'Simulate Driver A (Safe - ₹1,800)'}
           </button>
         </div>
 
-        {/* Driver B (Risky) */}
+        {/* Driver B: Risky */}
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">
-                Driver B · Risky Driver
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg">
+                🔴 Driver B · High Risk
               </span>
-              <span className="text-xs font-semibold text-slate-400">High Risk Exposure</span>
+              <span className="text-xs font-bold text-rose-600">Score: &lt; 50</span>
             </div>
-            <p className="text-xs text-slate-600 mb-3">
-              Rapid acceleration bursts, frequent hard braking events (&gt;0.4g), speeding exposure.
-            </p>
-            <div className="space-y-1.5 text-xs border-t border-slate-100 pt-2 font-mono">
-              <div className="flex justify-between"><span className="text-slate-400">Score:</span><span className="text-rose-600 font-bold">&lt; 50 / 100</span></div>
-              <div className="flex justify-between"><span className="text-slate-400">Adjustment:</span><span className="text-rose-600 font-bold">+20% (+₹400)</span></div>
-              <div className="flex justify-between text-sm font-bold border-t border-slate-100 pt-1 text-slate-800">
-                <span>Illustrative Premium:</span>
-                <span className="text-amber-600">₹2,400</span>
+            <div className="grid grid-cols-3 gap-2 py-2 border-y border-slate-100 text-center">
+              <div>
+                <p className="text-[10px] text-slate-400 font-bold uppercase">Speed</p>
+                <p className="text-sm font-bold text-rose-600">92 km/h</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-slate-400 font-bold uppercase">Helmet</p>
+                <p className="text-sm font-bold text-rose-600">Missing</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-slate-400 font-bold uppercase">Premium</p>
+                <p className="text-sm font-bold text-rose-600">₹2,400</p>
               </div>
             </div>
           </div>
           <button
             onClick={() => handleQuickRun('scenario_b_risky_no_accidents', 'Driver B')}
             disabled={simulatingDriver !== null}
-            className="mt-4 w-full bg-amber-600 hover:bg-amber-700 disabled:bg-slate-300 text-white font-semibold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+            className="mt-4 w-full bg-rose-600 hover:bg-rose-700 disabled:bg-slate-300 text-white font-semibold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
           >
             <Play className="w-3.5 h-3.5" />
-            {simulatingDriver === 'Driver B' ? 'Simulating…' : 'Simulate Driver B (Risky)'}
+            {simulatingDriver === 'Driver B' ? 'Simulating…' : 'Simulate Driver B (Risky - ₹2,400)'}
           </button>
         </div>
       </div>
 
-      {/* ── CUSTOMER QUOTES & DISPUTES LIST (Loaded directly from Supabase) ── */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
+      {/* ── EVENT-WISE PERFORMANCE BAR CHART (STREAMLINED) ── */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-base font-bold text-slate-800">My Insurance Quotes & Pricing Explanations</h3>
-            <p className="text-xs text-slate-400">
-              Computed from persisted Supabase records. You can raise a pricing dispute for compliance review.
-            </p>
+            <h3 className="text-base font-bold text-slate-800">Event-Wise Risk Telematics</h3>
+            <p className="text-xs text-slate-400">Live incidence counts across evaluated driving cohorts</p>
           </div>
-          <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
-            {quotesList.length} Quotes in Database
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700">
+              {consent?.has_active_consent ? 'Consent Active' : 'Consent Pending'}
+            </span>
+          </div>
+        </div>
+
+        <div className="h-48 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+              <XAxis dataKey="event" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
+              <Tooltip
+                contentStyle={{ backgroundColor: '#0f172a', borderRadius: '12px', border: 'none', color: '#fff', fontSize: '12px' }}
+              />
+              <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* ── CUSTOMER QUOTES & PRICING DISPUTES (CLEAN LIST) ── */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h3 className="text-base font-bold text-slate-800">Active Insurance Quotes</h3>
+            <p className="text-xs text-slate-400">Transparent factor-level pricing with 1-click dispute filing</p>
+          </div>
+          <button
+            onClick={() => navigate('/assessments')}
+            className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline"
+          >
+            View Factor Explanations &rarr;
+          </button>
         </div>
 
         {quotesList.length === 0 ? (
-          <div className="text-center py-8 text-xs text-slate-400">
-            No quotes generated yet. Run a simulation to produce your first behavioural quote.
+          <div className="text-center py-6 text-xs text-slate-400">
+            No quotes generated yet. Run a simulation above to produce your first behavioural quote.
           </div>
         ) : (
           <div className="divide-y divide-slate-100">
-            {quotesList.slice(0, 5).map((q: any) => (
-              <div key={q.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
+            {quotesList.slice(0, 3).map((q: any) => (
+              <div key={q.id} className="py-3 flex items-center justify-between gap-3">
+                <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-slate-800">
-                      ₹{q.illustrative_estimate ?? q.premium_estimate ?? 0}
+                    <span className="text-base font-extrabold text-slate-800">
+                      ₹{q.illustrative_estimate ?? q.premium_estimate ?? 2000}
                     </span>
-                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
-                      {q.status || 'Active'}
+                    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-md ${
+                      q.risk_adjustment <= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
+                    }`}>
+                      {q.risk_adjustment <= 0 ? '−10% Discount' : '+20% Surcharge'}
                     </span>
-                    <span className="text-xs text-slate-400">
-                      Base: ₹{q.base_premium ?? 0} | Adj: {q.risk_adjustment >= 0 ? `+₹${q.risk_adjustment}` : `−₹${Math.abs(q.risk_adjustment)}`}
+                    <span className="text-xs text-slate-400 hidden sm:inline">
+                      Base: ₹{q.base_premium ?? 2000}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Quote ID: <span className="font-mono text-slate-600">{q.id.slice(0, 8)}...</span> · Rule Version: {q.rule_version || 'Live'}
+                  <p className="text-[11px] text-slate-400">
+                    Quote #{q.id.slice(0, 8)} · Rule: {q.rule_version || 'Actuarial v2.1'}
                   </p>
                 </div>
                 <div>
                   <button
                     onClick={() => handleOpenDispute(q.id)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-semibold transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-semibold transition cursor-pointer"
                   >
                     <ShieldAlert className="w-3.5 h-3.5" />
-                    <span>Dispute Quote</span>
+                    <span>Dispute</span>
                   </button>
                 </div>
               </div>
@@ -567,33 +372,33 @@ export default function Dashboard() {
       {/* ── PRICING DISPUTE MODAL ── */}
       {disputeQuoteId && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200">
-            <h3 className="text-lg font-bold text-slate-800 mb-1">Raise a Pricing Dispute</h3>
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200">
+            <h3 className="text-lg font-bold text-slate-800 mb-1">Submit Pricing Dispute</h3>
             <p className="text-xs text-slate-500 mb-4">
-              Submit your dispute for independent review by the Pricing & Compliance Officer.
+              Disputes are reviewed by the Pricing & Compliance Officer before any quote change.
             </p>
 
             {disputeSuccess ? (
-              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-700 mb-4 flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-700 mb-3 flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                 <span>{disputeSuccess}</span>
               </div>
             ) : (
-              <form onSubmit={handleSubmitDispute} className="space-y-4">
+              <form onSubmit={handleSubmitDispute} className="space-y-3">
                 {disputeError && (
-                  <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700">
+                  <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700">
                     {disputeError}
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                    Dispute Reason
+                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                    Reason
                   </label>
                   <select
                     value={disputeReason}
                     onChange={e => setDisputeReason(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   >
                     <option>Excessive harsh braking deduction</option>
                     <option>Speed sensor anomaly / false positive</option>
@@ -603,33 +408,33 @@ export default function Dashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                    Detailed Explanation (Min 5 chars)
+                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                    Explanation
                   </label>
                   <textarea
-                    rows={4}
+                    rows={3}
                     value={disputeExplanation}
                     onChange={e => setDisputeExplanation(e.target.value)}
-                    placeholder="Describe what occurred (e.g. avoided pedestrian, GPS inaccuracy in tunnel)..."
+                    placeholder="Describe what occurred (e.g. avoided sudden pedestrian)..."
                     required
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-2">
+                <div className="flex items-center justify-end gap-2 pt-2">
                   <button
                     type="button"
                     onClick={() => setDisputeQuoteId(null)}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                    className="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={submittingDispute || disputeExplanation.trim().length < 5}
-                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white text-xs font-semibold shadow-xs"
+                    className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white text-xs font-semibold"
                   >
-                    {submittingDispute ? 'Submitting…' : 'Submit Dispute'}
+                    {submittingDispute ? 'Submitting…' : 'Submit'}
                   </button>
                 </div>
               </form>

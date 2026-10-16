@@ -182,22 +182,19 @@ export default function SimulatorPage() {
   const selectedScenarioMeta = scenarios.find(s => s.id === selected);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 animate-fadeIn pb-12">
-      {/* Synthetic data banner */}
-      <div className="bg-brand-50 border border-brand-200 rounded-xl p-4 flex items-start gap-3">
-        <Zap className="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5" />
+    <div className="max-w-6xl mx-auto space-y-5 animate-fadeIn pb-12">
+      {/* Clean Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-bold text-brand-800">FAIR ACTUARIAL SIMULATION ENGINE (v2.0)</p>
-          <p className="text-xs text-brand-700 mt-0.5">
-            Demonstrates independent 3-factor risk scoring: (A) Driving Behaviour Telematics, (B) Accident & Claims History, and (C) Driving Exposure Normalisation. All data is synthetic and persisted directly in Supabase PostgreSQL.
-          </p>
+          <h2 className="text-xl font-bold text-slate-800">Telematics Simulator & Live Monitor</h2>
+          <p className="text-xs text-slate-500">Live hardware telemetry streaming & fair actuarial pricing evaluations</p>
         </div>
       </div>
 
       {!consented && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between">
-          <p className="text-sm text-amber-800 font-semibold">⚠ Active consent required before running trips.</p>
-          <button onClick={() => navigate('/consent')} className="btn-primary text-xs py-1.5 px-3">
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between">
+          <p className="text-xs text-amber-800 font-semibold">Active consent required before running trips.</p>
+          <button onClick={() => navigate('/consent')} className="btn-primary text-xs py-1 px-3">
             Grant Consent
           </button>
         </div>

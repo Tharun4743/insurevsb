@@ -87,19 +87,17 @@ export default function ReviewPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-12">
+    <div className="space-y-5 animate-fadeIn pb-12">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-slate-800">Human Review Center</h2>
-          <p className="text-sm text-slate-500">Transparent human-in-the-loop oversight for telematics edge cases</p>
+          <h2 className="text-xl font-bold text-slate-800">Underwriting & Compliance Review</h2>
+          <p className="text-xs text-slate-500">Human-in-the-loop dispute adjudication & provisional incident queue</p>
         </div>
-        <button onClick={fetchCases} className="btn-secondary text-xs">
+        <button onClick={fetchCases} className="btn-secondary text-xs py-1.5 px-3">
           Refresh Queue
         </button>
       </div>
-
-      <DisclaimerBanner text="PROTOTYPE — Human Review simulates underwriting auditor decisions for telematics anomalies." />
 
       {error && <ErrorBanner message={error} onRetry={() => setError(null)} />}
 
