@@ -432,4 +432,29 @@ describe('INSURE Authentication, OTP, Brevo SMTP, and RBAC Test Suite', () => {
       expect(decisionRes.body.status).toBe('resolved');
     });
   });
+
+  afterAll(async () => {
+    try {
+      const db = getClient();
+      if (testCustomerEmail) {
+        const { data: testUsers } = await db.from('users').select('id').eq('email', testCustomerEmail);
+        if (testUsers && testUsers.length > 0) {
+          const uid = testUsers[0].id;
+          await db.from('otp_challenges').delete().eq('user_id', uid);
+          await db.from('password_reset_authorizations').delete().eq('user_id', uid);
+          await db.from('consents').delete().eq('user_id', uid);
+          await db.from('quotes').delete().eq('user_id', uid);
+          await db.from('pricing_disputes').delete().eq('user_id', uid);
+          await db.from('users').delete().eq('id', uid);
+        }
+      }
+      if (testQuoteId) {
+        const db = getClient();
+        await db.from('pricing_disputes').delete().eq('quote_id', testQuoteId);
+        await db.from('quotes').delete().eq('id', testQuoteId);
+      }
+    } catch (e) {
+      // Ignore cleanup error
+    }
+  });
 });

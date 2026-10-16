@@ -3,7 +3,8 @@
 [![Live App](https://img.shields.io/badge/Live%20App-insurevsb.vercel.app-00C49F?style=for-the-badge&logo=vercel)](https://insurevsb.vercel.app/)
 [![Virtual Circuit](https://img.shields.io/badge/Wokwi%20ESP32-Circuit%20478002558874029057-007ACC?style=for-the-badge&logo=espressif)](https://wokwi.com/projects/478002558874029057)
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Tharun4743%2Finsurevsb-181717?style=for-the-badge&logo=github)](https://github.com/Tharun4743/insurevsb)
-[![Tests Passing](https://img.shields.io/badge/IoT%20Telemetry%20Tests-23%2F23%20Passed-2EA44F?style=for-the-badge&logo=jest)](https://github.com/Tharun4743/insurevsb)
+[![Tests Passing](https://img.shields.io/badge/Full%20Test%20Suite-95%2F95%20Passed-2EA44F?style=for-the-badge&logo=jest)](https://github.com/Tharun4743/insurevsb)
+[![Continuous Pricing](https://img.shields.io/badge/Actuarial%20Engine-Continuous%20Dynamic-blue?style=for-the-badge)](https://insurevsb.vercel.app/simulator)
 
 > **Smarter Driving. Fairer Insurance.**  
 > A privacy-first, production-ready behavioural insurance pricing platform that combines consented real-world vehicle telematics and approved IoT measurements with insurer-approved risk factors, transparent factor-level actuarial calculations, Brevo SMTP notifications, and statutory fairness controls.
@@ -32,9 +33,9 @@
 
 | Official Hackathon Challenge | Traditional Failure Mode | INSURE Production Solution | Status |
 |---|---|---|---|
-| **1. Static Legacy Pricing vs. Actual Usage** | Good drivers subsidize reckless drivers because premiums rely on static demographic bins (age, postal code). | **Dynamic Behavioral Actuarial Pricing:** Telematics normalizes harsh braking, rapid acceleration, speeding, and night driving into an exposure-based Safety Score (0–100). | **100% Achieved** |
+| **1. Static Legacy Pricing vs. Actual Usage** | Good drivers subsidize reckless drivers because premiums rely on static demographic bins (age, postal code). | **Dynamic Behavioral Actuarial Pricing:** Telematics normalizes harsh braking, rapid acceleration, speeding, and night driving into an exposure-based Safety Score (0–100) with continuous dynamic premium calculation. | **100% Achieved** |
 | **2. Noisy & Incomplete Behavioural Data** | GPS drift, lost packets, or sensor glitches falsely classify safe drivers as aggressive, inflating rates. | **9-Rule Defensive Ingestion & Insufficient Data Gate:** Zod validation drops corrupt telemetry. Trips under 1 km or single readings default safely to baseline (₹2,000) with 0% penalty. | **100% Achieved** |
-| **3. Continuous Monitoring & Privacy Concerns** | Customers fear continuous 24/7 surveillance and third-party data tracking. | **Sovereign Consent Portal & Data Minimization:** DPDP/GDPR-compliant consent switch (`/consent`). Turning off telematics immediately halts ingestion; raw GPS coords are stripped. | **100% Achieved** |
+| **3. Continuous Monitoring & Privacy Concerns** | Customers fear continuous 24/7 surveillance and third-party data tracking. | **Sovereign Consent Portal & Data Minimization:** DPDP/GDPR-compliant sovereign consent switch embedded directly on `/`. Toggling off telematics immediately halts ingestion; raw GPS coords are stripped. | **100% Achieved** |
 | **4. Unexplained Premium Changes & Customer Distrust** | Opaque black-box AI algorithms modify quotes arbitrarily without explaining why. | **Deterministic Math & Factor Explanations:** Quotes explicitly decompose base rate, telematics adjustments ($\pm 10\%\dots 20\%$), and claim history with human-in-the-loop dispute review (`/review`). | **100% Achieved** |
 | **5. Model Fairness & Dispute Review** | Fault is prematurely pinned on drivers from raw sensor spikes during emergency avoidance. | **Provisional Collision Alert (Fault: UNKNOWN):** Impact $\ge 5.0\text{g}$ creates an unverified alert with **0% surcharge** until a human adjuster investigates on `/review`. | **100% Achieved** |
 
@@ -120,7 +121,7 @@ graph TD
     subgraph Tier4 ["Tier 4: Deterministic Actuarial & Fairness Engine"]
         FeatureExtractor["Exposure Normalizer (Per 100 km)"]
         ScoringService["Safety Scoring Engine (v2.1)"]
-        PricingService["Actuarial Pricing Engine (Capped at 40%)"]
+        PricingService["Actuarial Pricing Engine (Continuous & Tiered)"]
         FairnessMonitor["Cohort Bias & Parity Monitor"]
 
         T_Readings --> FeatureExtractor
@@ -132,17 +133,20 @@ graph TD
     end
 
     subgraph Tier5 ["Tier 5: Presentation & Governance Web Portal (React 18)"]
-        DashboardUI["Driver Live Telematics & Scores (/)"]
+        DashboardUI["Driver Live Telematics, Consent & Quotes (/)"]
+        TripHistoryUI["Telemetry Sensor Readings & Routes (/trips)"]
         SimulatorUI["Interactive Driving Simulator (/simulator)"]
-        ConsentUI["Sovereign Consent & Data Deletion (/consent)"]
-        ReviewUI["Underwriting Review & Claims Queue (/review)"]
-        PortfolioUI["Actuarial Profitability & Loss Ratios (/profitability)"]
-        AuditUI["Compliance Audit Logs (/audit)"]
+        ReviewUI["Underwriting Review & Dispute Adjudication (/review)"]
+        ComplianceUI["Compliance Overview & Cohort Parity (/compliance)"]
+        AdminUI["Policyholder Management & Pricing Rules (/admin)"]
+        AuditUI["Cryptographic SHA-256 Audit Trail (/audit)"]
 
         T_Quotes -.-> DashboardUI
+        T_Trips -.-> TripHistoryUI
         T_Readings -.-> SimulatorUI
         T_Assessments -.-> ReviewUI
-        T_Trips -.-> PortfolioUI
+        PricingService -.-> ComplianceUI
+        T_Assessments -.-> AdminUI
         T_Audit -.-> AuditUI
     end
 ```
@@ -198,35 +202,37 @@ The interactive circuit runs live at **[Wokwi Project 478002558874029057](https:
 | **Collision Status LED** | Red LED | `GPIO 26` (via 220Ω) | Latches on whenever impact exceeds collision threshold ($\ge 5.0g$) |
 | **Alarm Siren** | Piezo Buzzer | `GPIO 27` (PWM) | Emits 1.2 kHz acoustic siren tone during collision emergencies |
 
+### 🚀 Live Dynamic Sensor Thresholds (No Constant Values)
+
+All telemetry readings are dynamically evaluated with real-time reactive feedback:
+- **Speedometer:** Dynamically detects `speed > 60 km/h` as an overspeeding breach, with continuous numerical km/h updates.
+- **MPU6050 Accelerometer:** Real-time acceleration evaluated against harsh braking (`< -3.5 m/s²`), rapid acceleration (`> 3.0 m/s²`), or smooth motion.
+- **Impact Force:** Live G-force tracking; road vibrations (`< 4.5g`) classified as nominal, impacts (`>= 4.5g`) trigger immediate collision alerts.
+- **Helmet Optical Switch:** Hardware Pin 19 dynamically updates between `✓ BUCKLED & VERIFIED` and `⚠ NOT DETECTED (Violation)`.
+- **Potentiometer (Alcohol MQ-3):** Dynamically categorizes breath alcohol concentration without hardcoded strings:
+  - `0.00 ppm`: `✓ 0.00 (Zero / Clear)`
+  - `< 0.20 ppm`: `⚠ Trace Alcohol`
+  - `>= 0.20 ppm`: `🚨 Intoxication Alert`
+- **Fair Dynamic Premium:** Non-constant, continuous actuarial calculations compute exact rupee adjustments rather than flatlining at 0.00%.
+
 ---
 
-## 🧪 The 4 Demonstration Scenarios
+## 🧪 Demonstration Scenario Actuarial Reference Matrix
 
-### Scenario A: Safe Commute (Ravi)
-- **Inputs:** Speed: 38 km/h, Accel: 0.12 m/s², Helmet: ON (`GPIO 19` LOW), Alcohol: 0.00 ppm.
-- **Actuarial Result:** Safety Score: **92 / 100** (Tier 1).
-- **Premium:** ₹2,000 $\times (1 - 0.10) =$ **₹1,800 / year (₹200 savings)**.
-
-### Scenario B: High-Risk Commute (Rahul)
-- **Inputs:** Speed: 92 km/h, Accel: -16.2 m/s² (hard stop), Helmet: OFF (`GPIO 19` HIGH), Alcohol: 0.42 ppm.
-- **Actuarial Result:** Safety Score: **42 / 100** (Tier 3).
-- **Premium:** ₹2,000 $\times (1 + 0.20) =$ **₹2,400 / year (+₹400 surcharge)**.
-
-### Scenario C: Sudden Impact Spike (Pushbutton Pressed)
-- **Inputs:** Pushbutton on `GPIO 18` pressed $\to$ Impact: 7.4g, Decel: -18.5 m/s².
-- **Hardware Feedback:** Buzzer sounds siren, Red LED illuminates.
-- **Fairness Principle:** Ingestion records `accident_records` with `Fault Status: UNKNOWN`. The driver's quote is **NOT automatically surcharged** ($0\%$ penalty) until a human adjuster investigates on `/review`.
-
-### Scenario D: Two-Vehicle Correlated Crash (Bike 001 + Bike 002)
-- **Inputs:** Type `D` into Wokwi Serial Monitor $\to$ Multi-vehicle impact logged simultaneously for `INSURE-BIKE-001` and `INSURE-BIKE-002`.
-- **Fairness Principle:** Both vehicles receive neutral provisional incident reports, eliminating unilateral automated blame.
+| Scenario | Inputs & Telemetry Profile | Safety Score | Premium Formula & Adjustment | Fairness Guarantee |
+|---|---|---|---|---|
+| **[A] Safe Commute** | Speed: 38 km/h, Accel: 0.12 m/s², Helmet: ON (`Pin 19 LOW`), Alcohol: 0.00 ppm | **90–95 / 100** (Low Risk) | **₹1,800 / year (-10% Discount)**<br/>Base: ₹2,000 - ₹200 earned discount | Earned discount applied immediately |
+| **[B] Risky Driving** | Speed: 92 km/h, Accel: -16.2 m/s², Helmet: OFF (`Pin 19 HIGH`), Alcohol: 0.42 ppm | **< 50 / 100** (High Risk) | **₹2,400 / year (+20% Surcharge)**<br/>Base: ₹2,000 + ₹400 risk surcharge | Surcharge transparently explained by factor |
+| **[C] Collision Spike** | Pushbutton on `Pin 18` pressed $\to$ 7.42g Impact, Decel: -18.5 m/s² | **Provisional Alert** | **₹2,000 / year (0% Penalty)**<br/>Fault: **UNKNOWN** (Unverified) | No automated surcharge until human review |
+| **[D] 2-Vehicle Crash** | Correlated impacts for `INSURE-BIKE-001` and `INSURE-BIKE-002` | **Provisional Incident** | **Neutral Premium**<br/>Distinct event IDs, both faults **UNKNOWN** | Prevents unilateral automated blame |
+| **Moderate Driving** | Mixed driving (e.g. Score 79.0, mild speed variance) | **79.0 / 100** (Moderate Risk) | **₹1,896 / year (-5.2% Discount)**<br/>Continuous actuarial interpolation | Avoids arbitrary flat step-blocks |
 
 ---
 
 ## 📐 Actuarial Calculation Formulas & Mathematical Verification
 
 ### 1. Safety Score Formula
-$$\text{Safety Score} = \max\Big(0, \min\big(100, 100 - (\Delta_{\text{harsh}} + \Delta_{\text{speed}} + \Delta_{\text{night}} + \Delta_{\text{gear}} + \Delta_{\text{substance}})\big)\Big)$$
+$$\text{Safety Score } S = \max\Big(0, \min\big(100, 100 - (\Delta_{\text{harsh}} + \Delta_{\text{speed}} + \Delta_{\text{night}} + \Delta_{\text{gear}} + \Delta_{\text{substance}})\big)\Big)$$
 
 - **Harsh Braking Penalty ($\Delta_{\text{harsh}}$):** $\min(30, \text{events\_per\_100km} \times 5)$
 - **Speed Compliance Penalty ($\Delta_{\text{speed}}$):** $\min(30, (\text{pct\_time\_over\_limit} \times 0.5) + (\max(\text{speed} - 80, 0) \times 0.5))$
@@ -234,41 +240,24 @@ $$\text{Safety Score} = \max\Big(0, \min\big(100, 100 - (\Delta_{\text{harsh}} +
 - **Protective Gear Deduction ($\Delta_{\text{gear}}$):** $15\text{ pts}$ if helmet unbuckled
 - **Substance Deduction ($\Delta_{\text{substance}}$):** $\min(30, \frac{\text{alcohol\_ppm}}{0.30} \times 30)$
 
-### 2. Fair Premium Calculation Formula
+### 2. Fair Dynamic Premium Calculation Formula
+
 $$\text{Final Premium} = \text{Base Premium} \times \big(1 + \text{clamp}(\Delta_{\text{telematics}}, -0.20, +0.20) + \Delta_{\text{claims}}\big)$$
 
 Where:
-- $\text{Base Premium} = ₹2,000$
-- **Tier 1 (Score 80–100):** $\Delta_{\text{telematics}} = -10\%$ (₹1,800)
-- **Tier 2 (Score 50–79.99):** $\Delta_{\text{telematics}} = 0\%$ (₹2,000)
-- **Tier 3 (Score < 50):** $\Delta_{\text{telematics}} = +20\%$ (₹2,400)
+- $\text{Base Premium} = ₹2,000.00$
+- **Continuous Actuarial Mode:**
+  $$\Delta_{\text{telematics}} = -(S - 65) \times \frac{10\%}{27}$$
+  *(Around neutral benchmark score 65, scores earn proportional discounts up to -10% at score 92, or incur proportional surcharges up to +20% at score 25).*
+- **Tiered Actuarial Mode (Configured Matrix):**
+  - Score 80–100: $\Delta_{\text{telematics}} = -10\%$ (₹1,800)
+  - Score 50–79.99: $\Delta_{\text{telematics}} = 0\%$ (₹2,000)
+  - Score < 50: $\Delta_{\text{telematics}} = +20\%$ (₹2,400)
 - **Claim Surcharge ($\Delta_{\text{claims}}$):** $+15\%$ per verified at-fault incident (strictly $0\%$ for provisional/unverified alerts).
 
----
-
-## 📈 Insurer Portfolio Economics & Combined Ratio Optimization
-
-INSURE does not merely benefit safe drivers; it stabilizes insurance company loss ratios:
-
-```
-+---------------------------------------------------------------------------------------------------+
-|  COMBINED RATIO (CR) EQUATION:                                                                    |
-|                                                                                                   |
-|                   Incurred Claims (Losses) + Operating Expenses                                  |
-|  Combined Ratio = --------------------------------------------- x 100%                            |
-|                               Earned Premium                                                      |
-|                                                                                                   |
-|  * CR > 100%: Insurer is LOSING MONEY on underwriting operations.                                 |
-|  * CR < 100%: Insurer is GENERATING UNDERWRITING PROFIT.                                          |
-+---------------------------------------------------------------------------------------------------+
-```
-
-| Metric | Traditional Blind Pricing | INSURE Behavioral Telematics | Financial Impact |
-|---|---|---|---|
-| **Earned Premium (10,000 policies)** | ₹20,000,000 | ₹20,800,000 | +4.0% revenue optimization |
-| **Incurred Claims (Accident Payouts)** | ₹15,600,000 (78% Loss Ratio) | ₹13,104,000 (63% Loss Ratio) | **-16.0% lower claim payouts** |
-| **Underwriting & Administrative Expenses** | ₹5,200,000 (26% Expense Ratio) | ₹5,200,000 (25% Expense Ratio) | Automated telematics efficiency |
-| **Combined Ratio (CR)** | **104.0% (Underwriting Loss)** | **88.0% (Underwriting Profit)** | **+16.0% Margin Swing** |
+### 3. Statutory Fairness Guarantee
+> **Legitimate claim settlement is legally separated from dynamic pricing. Risk telemetry cannot reduce insurance payouts.**  
+> Algorithmic neutrality is enforced: provisional collision alerts default to `Fault Status: UNKNOWN` with 0% penalty until a human adjudicator reviews the case.
 
 ---
 
@@ -276,46 +265,34 @@ INSURE does not merely benefit safe drivers; it stabilizes insurance company los
 
 INSURE enforces strict, role-tailored navigation eliminating clutter:
 
-| Role Portal | Focused Sidebar Items | URL Routes | Core Responsibilities & Workflow |
+| Role Portal | Focused Navigation Items | URL Routes | Core Responsibilities & Workflow |
 |---|---|---|---|
-| **🟢 Driver / Policyholder** | 1. **My Policy & Driving**<br/>2. **Trip History**<br/>3. **IoT Live Stream & Sim** | `/`<br/>`/trips`<br/>`/simulator` | View safety score, dynamic quote (₹1,800 vs ₹2,400), 5-factor scorecard, toggle sovereign consent in 1-click, inspect driving trips, and stream live ESP32 virtual hardware. |
+| **🟢 Driver / Policyholder** | 1. **My Policy & Driving**<br/>2. **Trip History**<br/>3. **IoT Live Stream & Sim** | `/`<br/>`/trips`<br/>`/simulator` | View safety score, continuous dynamic quote, 5-factor scorecard, toggle sovereign DPDP consent in 1-click, inspect driving trips, and stream live ESP32 virtual hardware. |
 | **⚖️ Compliance Officer** | 1. **Underwriting Review**<br/>2. **Compliance Overview**<br/>3. **Fairness Audit Log** | `/review`<br/>`/compliance`<br/>`/audit` | Adjudicate customer pricing disputes, review provisional collision alerts (`Fault: UNKNOWN`), monitor demographic parity across cohorts, and inspect the immutable SHA-256 ledger. |
-| **🏢 Insurance Admin / Owner** | 1. **Admin Portfolio**<br/>2. **Portfolio Economics**<br/>3. **System Audit Trail** | `/admin`<br/>`/profitability`<br/>`/audit` | Manage customer account status, publish pricing rule versions, monitor Combined Ratio optimization (88% vs 104%), and audit system operations. |
+| **🏢 Insurance Admin** | 1. **Admin Portfolio**<br/>2. **Fairness Audit Trail** | `/admin`<br/>`/audit` | Manage customer account status, publish pricing rule versions, monitor portfolio health, and audit system operations. |
 
 ---
 
-## 👥 Pre-Provisioned Accounts for Demonstration
+## 👥 The 4 Real Verified Team Accounts (Zero Dummy Data)
 
-| Role | Email Address | Password | Primary Demo Workflow |
-|---|---|---|---|
-| **Customer / Driver** | `tharunkumark4743@gmail.com` | `123456` | Test consent switch, review factor breakdowns, submit pricing dispute |
-| **Pricing & Compliance Officer** | `vsbecitc2428@gmail.com` | `123456` | Review provisional collision alerts, adjudicate disputes, audit fairness |
-| **Insurance Administrator / Owner** | `tharunkumark42007@gmail.com` | `123456` | Inspect portfolio combined ratio (88%), manage users, export CSV audits |
+The remote Supabase database contains strictly 4 verified real team accounts. All dummy accounts ("Alice Driver", "demo@insure.test") have been permanently purged:
+
+| Name | Role | Email Address | Password | Primary Workflow |
+|---|---|---|---|---|
+| **Tharun Kumar (Admin)** | `admin` | `tharunkumark42007@gmail.com` | `123456` | Configure pricing rules, manage customer roster, audit ledger |
+| **Compliance Officer (VSBEC IT)** | `compliance_officer` | `vsbecitc2428@gmail.com` | `123456` | Adjudicate disputes, review provisional collisions, audit parity |
+| **Tharun Kumar** | `customer` | `tharunkumark4743@gmail.com` | `123456` | Primary policyholder (56 trips, 55 quotes, live telematics) |
+| **Krishnathidhan .T** | `customer` | `krishnathidhan@gmail.com` | `123456` | Secondary policyholder (2 trips, 2 quotes) |
 
 *(Instant 1-click login cards are available directly on the `/login` screen).*
 
 ---
 
-## ⏱️ 3-Minute Live Hackathon Pitch Script (For Presenters)
-
-- **[0:00 – 0:30] The Hook & Problem:**  
-  *"Traditional auto insurance is broken. Ravi drives safely at 38 km/h wearing a helmet; Rahul drives recklessly at 92 km/h without a helmet. Yet traditional insurers charge them both the exact same ₹2,000. Ravi is unfairly subsidizing Rahul. INSURE fixes this with consented IoT telematics."*
-- **[0:30 – 1:15] Hardware-in-the-Loop Live Demo:**  
-  *Open Tab 1 (Wokwi) and Tab 2 (INSURE Simulator). Show the green heartbeat LED blinking. Flip the helmet switch $\to$ Tab 2 shows 'Helmet NOT DETECTED'. Rotate the alcohol knob $\to$ Tab 2 shows alcohol ppm rising. Press the red collision button $\to$ siren sounds, red LED fires, and Tab 2 logs a provisional collision alert.*
-- **[1:15 – 2:00] Fairness Principle & Actuarial Pricing:**  
-  *Point out that the collision alert has 'Fault Status: UNKNOWN' and 0% penalty. Explain that sensor signals alone never prove driver fault. Ravi receives an explainable 10% discount (₹1,800) while Rahul incurs a +20% surcharge (₹2,400).*
-- **[2:00 – 2:30] Human-in-the-Loop Dispute & Consent:**  
-  *Log in as Compliance Officer (`vsbecitc2428@gmail.com`). Show the Underwriting Review queue. Demonstrate adjudicating a dispute where a driver braked hard to avoid cattle. Switch to `/consent` to show sovereign GDPR/DPDP opt-out controls.*
-- **[2:30 – 3:00] Underwriting Economics & Conclusion:**  
-  *Open `/profitability` to show how INSURE shifts the portfolio Combined Ratio from an unprofitable 104% to a healthy 88%. Conclude: 'INSURE provides safer roads, lower premiums for good drivers, and profitable, statutory-compliant portfolios for insurers.'*
-
----
-
-## 💻 Local Setup & Execution Guide
+## 💻 Local Setup, Continuous Testing & Verification
 
 ### Prerequisites
 - Node.js v18+ and npm
-- PostgreSQL database (or remote Supabase instance)
+- PostgreSQL database (or remote Supabase instance via `DATABASE_URL`)
 
 ### 1. Start the Backend API
 ```bash
@@ -333,12 +310,26 @@ npm run dev
 ```
 *Frontend runs on `http://localhost:5173`.*
 
-### 3. Run Automated IoT Telematics Test Suite
+### 3. Run Automated Unit Tests (95 Tests)
 ```bash
 cd backend
-npm test -- tests/iot_telematics.test.ts
+npm test
 ```
-*Executes all 23 integration tests verifying physical range checks, deduplication, collision thresholds, and provisional pricing gates.*
+*Executes all 8 test suites verifying telematics ingestion, auth/roles, pricing math, simulator, validation, and fairness.*
+
+### 4. Run End-to-End System & Role Verification (24/24 Tests)
+```bash
+cd backend
+npx ts-node src/scripts/verifyAllPagesAndFeatures.ts
+```
+*Verifies all 8 application pages and API routes across all 3 user roles with real JWT tokens.*
+
+### 5. Production Build Validation
+```bash
+cd frontend
+npm run build
+```
+*Compiles the production bundle with Vite and TypeScript.*
 
 ---
 

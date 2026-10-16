@@ -37,7 +37,7 @@ export function getCurrencySymbol(): string {
 export const SAFE_DISCOUNT_PCT = 10;   // 10% discount for safety score 80-100 -> ₹1,800
 export const RISKY_SURCHARGE_PCT = 20; // 20% increase for safety score < 50 -> ₹2,400
 
-export function calculateQuote(assessment: any, accidentHistory: any = null): any {
+export function calculateQuote(assessment: any, accidentHistory: any = null, pricingConfig: any = null): any {
   const currentBasePremium = getBasePremium();
   const currentRuleVersion = getRuleVersion();
   const currentCurrency = getCurrency();
@@ -55,22 +55,37 @@ export function calculateQuote(assessment: any, accidentHistory: any = null): an
 
   if (!isInsufficient && hasScore) {
     const safetyScore = Number(assessment.safety_score != null ? assessment.safety_score : assessment.score);
-    
-    // Continuous, non-constant actuarial formula:
-    // Benchmark 65 = neutral baseline (0% adjustment -> ₹2,000)
-    // Score > 65: earns dynamic discount scaling proportionally (-0.37037% per point, exactly -10% at score 92)
-    // Score < 65: incurs dynamic surcharge scaling proportionally (+0.50% per point, exactly +20% at score 25)
-    if (Math.abs(safetyScore - 65) < 0.001) {
-      behaviourAdjRate = 0.00;
-      behaviourTier = 'standard_moderate';
-    } else if (safetyScore > 65) {
-      const pct = -((safetyScore - 65) * (10 / 27));
-      behaviourAdjRate = parseFloat((pct / 100).toFixed(4));
-      behaviourTier = safetyScore >= 80 ? 'safe_driver_discount' : 'moderate_safe_discount';
+    const isContinuous = pricingConfig?.continuous === true || assessment?.continuous === true;
+
+    if (isContinuous) {
+      // Continuous actuarial formula around benchmark 65
+      if (Math.abs(safetyScore - 65) < 0.001) {
+        behaviourAdjRate = 0.00;
+        behaviourTier = 'standard_moderate';
+      } else if (safetyScore > 65) {
+        const pct = -((safetyScore - 65) * (10 / 27));
+        behaviourAdjRate = parseFloat((pct / 100).toFixed(4));
+        behaviourTier = safetyScore >= 80 ? 'safe_driver_discount' : 'moderate_safe_discount';
+      } else {
+        const pct = (65 - safetyScore) * 0.5;
+        behaviourAdjRate = parseFloat((pct / 100).toFixed(4));
+        behaviourTier = safetyScore >= 50 ? 'standard_moderate' : 'elevated_risk_surcharge';
+      }
     } else {
-      const pct = (65 - safetyScore) * 0.5;
-      behaviourAdjRate = parseFloat((pct / 100).toFixed(4));
-      behaviourTier = safetyScore >= 50 ? 'standard_moderate' : 'elevated_risk_surcharge';
+      // Standard Actuarial Rule Matrix (Section 9 Acceptance Criteria):
+      // - Score 80-100: -10% Discount (Safe driver earned discount)
+      // - Score 50-79.99: 0.0% Neutral (Standard baseline)
+      // - Score < 50: +20% Surcharge (High-risk driver surcharge)
+      if (safetyScore >= 80) {
+        behaviourAdjRate = -0.10;
+        behaviourTier = 'safe_driver_discount';
+      } else if (safetyScore >= 50) {
+        behaviourAdjRate = 0.00;
+        behaviourTier = 'standard_moderate';
+      } else {
+        behaviourAdjRate = 0.20;
+        behaviourTier = 'elevated_risk_surcharge';
+      }
     }
   }
 
