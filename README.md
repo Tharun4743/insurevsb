@@ -272,20 +272,15 @@ INSURE does not merely benefit safe drivers; it stabilizes insurance company los
 
 ---
 
-## 🧭 Role-Based Navigation Matrix (Sidebar Menu Guide)
+## 🧭 Streamlined Role-Based Navigation Architecture
 
-INSURE implements granular Role-Based Access Control (RBAC). Here is why each sidebar route exists:
+INSURE enforces strict, role-tailored navigation eliminating clutter:
 
-| Sidebar Item | URL Path | Visible To | Operational Purpose & Reason for Inclusion |
+| Role Portal | Focused Sidebar Items | URL Routes | Core Responsibilities & Workflow |
 |---|---|---|---|
-| **Dashboard** | `/` | All Roles | Overview of current policyholder status, active vehicle, safety tier badge, and estimated annual premium. |
-| **Trip Telematics** | `/trips` | `driver`, `admin` | Full GPS breadcrumb route viewer, speed histogram, and event-by-event acceleration log. |
-| **IoT Driving Simulator** | `/simulator` | All Roles | Real-time virtual Wokwi monitor showing live MPU6050 packets, helmet status, alcohol ppm, and speed. |
-| **Risk Assessments** | `/assessments` | `driver`, `compliance` | Factor-level explainability card showing exactly which deductions affected the quote. |
-| **Privacy & Consent** | `/consent` | `driver` | Sovereign GDPR/DPDP consent toggle, telematics opt-in/opt-out switch, and data deletion requests. |
-| **Underwriting Review** | `/review` | `compliance_officer` | Human-in-the-loop queue for adjudicating driver pricing disputes and reviewing provisional collision alerts. |
-| **Portfolio Growth** | `/profitability` | `admin` | Executive actuarial dashboard showing portfolio combined ratio, loss ratio trends, and risk distribution. |
-| **Compliance Audit Trail** | `/audit` | `admin`, `compliance` | Immutable, tamper-evident SHA-256 audit log recording every quote generation, consent change, and adjudication. |
+| **🟢 Driver / Policyholder** | 1. **My Policy & Driving**<br/>2. **Trip History**<br/>3. **IoT Live Stream & Sim** | `/`<br/>`/trips`<br/>`/simulator` | View safety score, dynamic quote (₹1,800 vs ₹2,400), 5-factor scorecard, toggle sovereign consent in 1-click, inspect driving trips, and stream live ESP32 virtual hardware. |
+| **⚖️ Compliance Officer** | 1. **Underwriting Review**<br/>2. **Compliance Overview**<br/>3. **Fairness Audit Log** | `/review`<br/>`/compliance`<br/>`/audit` | Adjudicate customer pricing disputes, review provisional collision alerts (`Fault: UNKNOWN`), monitor demographic parity across cohorts, and inspect the immutable SHA-256 ledger. |
+| **🏢 Insurance Admin / Owner** | 1. **Admin Portfolio**<br/>2. **Portfolio Economics**<br/>3. **System Audit Trail** | `/admin`<br/>`/profitability`<br/>`/audit` | Manage customer account status, publish pricing rule versions, monitor Combined Ratio optimization (88% vs 104%), and audit system operations. |
 
 ---
 
