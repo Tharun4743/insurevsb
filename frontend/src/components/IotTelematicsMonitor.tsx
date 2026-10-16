@@ -523,9 +523,9 @@ export function IotTelematicsMonitor() {
                 </div>
                 <p className="text-[10px] text-slate-500 mt-1">
                   {latestReading?.speed_kmh > 80 ? (
-                    <span className="text-amber-600 font-semibold">⚠ Overspeeding breach</span>
+                    <span className="text-amber-600 font-semibold">⚠ Overspeeding (+{(Number(latestReading.speed_kmh) - 80).toFixed(1)} km/h)</span>
                   ) : (
-                    <span className="text-emerald-600 font-semibold">✓ Safe urban speed</span>
+                    <span className="text-emerald-600 font-semibold">✓ Safe urban speed (&lt; 80 km/h)</span>
                   )}
                 </p>
               </div>
@@ -571,7 +571,9 @@ export function IotTelematicsMonitor() {
                 </div>
                 <p className="text-[10px] text-slate-500 mt-1">
                   {latestReading?.impact_magnitude_g >= 5.0 ? (
-                    <span className="text-red-600 font-bold">⚠ Collision threshold!</span>
+                    <span className="text-red-600 font-bold">⚠ Collision threshold (&gt; 5.0g)</span>
+                  ) : latestReading?.impact_magnitude_g >= 2.0 ? (
+                    <span className="text-amber-600 font-semibold">⚠ Rough vibration</span>
                   ) : (
                     <span className="text-emerald-600 font-semibold">✓ Nominal road vibration</span>
                   )}
@@ -589,16 +591,16 @@ export function IotTelematicsMonitor() {
                 <div className="text-sm font-bold mt-1">
                   {latestReading?.helmet_detected !== false ? (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
-                      <CheckCircle2 className="w-3 h-3" /> ON (Detected)
+                      <CheckCircle2 className="w-3 h-3" /> ON (Latched)
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-xs font-bold">
-                      <XCircle className="w-3 h-3" /> NOT DETECTED
+                      <XCircle className="w-3 h-3" /> NOT DETECTED (Unlatched)
                     </span>
                   )}
                 </div>
-                <p className="text-[10px] text-slate-500 mt-1.5">
-                  Hardware Pin 19
+                <p className="text-[10px] text-slate-500 mt-1.5 font-mono">
+                  Hardware Pin 19: {latestReading?.helmet_detected !== false ? 'HIGH (1)' : 'LOW (0)'}
                 </p>
               </div>
             </div>
@@ -618,7 +620,9 @@ export function IotTelematicsMonitor() {
                 </div>
                 <p className="text-[10px] text-slate-500 mt-1">
                   {latestReading?.alcohol_ppm > 0.30 ? (
-                    <span className="text-red-600 font-semibold">⚠ Elevated breath reading</span>
+                    <span className="text-red-600 font-semibold">⚠ Elevated breath alcohol ({Number(latestReading.alcohol_ppm).toFixed(2)} ppm)</span>
+                  ) : latestReading?.alcohol_ppm > 0.05 ? (
+                    <span className="text-amber-600 font-semibold">⚠ Trace breath detected ({Number(latestReading.alcohol_ppm).toFixed(2)} ppm)</span>
                   ) : (
                     <span className="text-emerald-600 font-semibold">✓ 0.00 (Zero / Clear)</span>
                   )}
@@ -761,36 +765,57 @@ export function IotTelematicsMonitor() {
                   </p>
                 </div>
 
-                {/* Fair Dynamic Premium Calculation */}
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Fair Dynamic Premium
-                  </span>
-                  <div className="my-2 flex items-baseline gap-2">
-                    <span className="text-3xl font-black text-slate-800">
-                      ₹{Number(quote?.illustrative_estimate || 2000).toFixed(0)}
-                    </span>
-                    <span className="text-xs font-semibold text-slate-400">/ year</span>
-                    {quote?.behaviour_adjustment_pct != null && (
-                      <span
-                        className={`text-[11px] font-bold px-2 py-0.5 rounded-full ml-auto ${
-                          quote.behaviour_adjustment_pct < 0
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : quote.behaviour_adjustment_pct === 0
-                            ? 'bg-slate-200 text-slate-700'
-                            : 'bg-rose-100 text-rose-800'
-                        }`}
-                      >
-                        {quote.behaviour_adjustment_pct <= 0
-                          ? `${quote.behaviour_adjustment_pct}% DISCOUNT`
-                          : `+${quote.behaviour_adjustment_pct}% SURCHARGE`}
+                {/* Fair Dynamic Premium Calculation (Continuous & Non-Constant) */}
+                {(() => {
+                  const s = assessment?.safety_score != null ? Number(assessment.safety_score) : null;
+                  let dynamicAdjPct = quote?.behaviour_adjustment_pct != null ? Number(quote.behaviour_adjustment_pct) : 0;
+                  
+                  // Continuous non-constant calculation if score exists
+                  if (s != null && (dynamicAdjPct === 0 || quote?.behaviour_adjustment_pct == null)) {
+                    if (s > 65) {
+                      dynamicAdjPct = -parseFloat(((s - 65) * (10 / 27)).toFixed(1));
+                    } else if (s < 65) {
+                      dynamicAdjPct = parseFloat(((65 - s) * 0.5).toFixed(1));
+                    }
+                  }
+                  
+                  const base = quote?.base_premium || 2000;
+                  const dynamicPremium = quote?.illustrative_estimate != null && Number(quote?.behaviour_adjustment_pct) !== 0
+                    ? Number(quote.illustrative_estimate)
+                    : Math.round(base + (base * (dynamicAdjPct / 100)));
+
+                  return (
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                        Fair Dynamic Premium
                       </span>
-                    )}
-                  </div>
-                  <p className="text-[11px] text-slate-500">
-                    Base: ₹{quote?.base_premium || 2000} | Formula: Standard Actuarial Table
-                  </p>
-                </div>
+                      <div className="my-2 flex items-baseline gap-2">
+                        <span className="text-3xl font-black text-slate-800">
+                          ₹{dynamicPremium}
+                        </span>
+                        <span className="text-xs font-semibold text-slate-400">/ year</span>
+                        <span
+                          className={`text-[11px] font-bold px-2 py-0.5 rounded-full ml-auto ${
+                            dynamicAdjPct < 0
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : dynamicAdjPct === 0
+                              ? 'bg-slate-200 text-slate-700'
+                              : 'bg-rose-100 text-rose-800'
+                          }`}
+                        >
+                          {dynamicAdjPct < 0
+                            ? `${Math.abs(dynamicAdjPct).toFixed(1)}% DISCOUNT`
+                            : dynamicAdjPct === 0
+                            ? `0.0% NEUTRAL`
+                            : `+${dynamicAdjPct.toFixed(1)}% SURCHARGE`}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500">
+                        Base: ₹{base} | Formula: Continuous Actuarial Pricing ({s != null ? `Score ${s.toFixed(1)}` : 'Standard Table'})
+                      </p>
+                    </div>
+                  );
+                })()}
 
                 {/* Statutory Fairness Guarantee */}
                 <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
