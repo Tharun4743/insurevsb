@@ -1,4 +1,4 @@
-# INSURE — InsurTech & IoT Telematics Insurance Pricing Platform
+# INSURE ΓÇö InsurTech & IoT Telematics Insurance Pricing Platform
 
 [![Live App](https://img.shields.io/badge/Live%20App-insurevsb.vercel.app-00C49F?style=for-the-badge&logo=vercel)](https://insurevsb.vercel.app/)
 [![Virtual Circuit](https://img.shields.io/badge/Wokwi%20ESP32-Circuit%20478002558874029057-007ACC?style=for-the-badge&logo=espressif)](https://wokwi.com/projects/478002558874029057)
@@ -11,12 +11,12 @@
 
 ---
 
-## 📑 Quick Navigation & Presentation Resources
+## ≡ƒôæ Quick Navigation & Presentation Resources
 
-- 🌐 **Live Web Application:** [https://insurevsb.vercel.app](https://insurevsb.vercel.app)
-- 🎮 **IoT Driving Simulator:** [https://insurevsb.vercel.app/simulator](https://insurevsb.vercel.app/simulator)
-- ⚡ **Wokwi Virtual ESP32 Hardware:** [https://wokwi.com/projects/478002558874029057](https://wokwi.com/projects/478002558874029057)
-- 📄 **Presentation PDF Dossiers (Pre-compiled in Repo):**
+- ≡ƒîÉ **Live Web Application:** [https://insurevsb.vercel.app](https://insurevsb.vercel.app)
+- ≡ƒÄ« **IoT Driving Simulator:** [https://insurevsb.vercel.app/simulator](https://insurevsb.vercel.app/simulator)
+- ΓÜí **Wokwi Virtual ESP32 Hardware:** [https://wokwi.com/projects/478002558874029057](https://wokwi.com/projects/478002558874029057)
+- ≡ƒôä **Presentation PDF Dossiers (Pre-compiled in Repo):**
   - [INSURE Master Hackathon Presentation Dossier (PDF)](./INSURE_Master_Hackathon_Presentation_Dossier.pdf)
   - [INSURE Humanized Guide & Scenarios (PDF)](./INSURE_Humanized_Guide_and_Scenarios.pdf)
   - [INSURE All Actuarial Calculation Formulas (PDF)](./INSURE_All_Calculation_Formulas.pdf)
@@ -24,24 +24,24 @@
 
 ---
 
-## 📌 Official Problem Statement & 100% Achievement Matrix
+## ≡ƒôî Official Problem Statement & 100% Achievement Matrix
 
-### 🎯 Problem Statement
+### ≡ƒÄ» Problem Statement
 > **Create an insurance pricing platform that uses consented real-world behaviour data, such as vehicle telematics or approved IoT measurements, to inform premiums alongside insurer-approved risk factors.**
 
-### ⚠️ Challenges & How INSURE Solves Them
+### ΓÜá∩╕Å Challenges & How INSURE Solves Them
 
 | Official Hackathon Challenge | Traditional Failure Mode | INSURE Production Solution | Status |
 |---|---|---|---|
-| **1. Static Legacy Pricing vs. Actual Usage** | Good drivers subsidize reckless drivers because premiums rely on static demographic bins (age, postal code). | **Dynamic Behavioral Actuarial Pricing:** Telematics normalizes harsh braking, rapid acceleration, speeding, and night driving into an exposure-based Safety Score (0–100) with continuous dynamic premium calculation. | **100% Achieved** |
-| **2. Noisy & Incomplete Behavioural Data** | GPS drift, lost packets, or sensor glitches falsely classify safe drivers as aggressive, inflating rates. | **9-Rule Defensive Ingestion & Insufficient Data Gate:** Zod validation drops corrupt telemetry. Trips under 1 km or single readings default safely to baseline (₹2,000) with 0% penalty. | **100% Achieved** |
+| **1. Static Legacy Pricing vs. Actual Usage** | Good drivers subsidize reckless drivers because premiums rely on static demographic bins (age, postal code). | **Dynamic Behavioral Actuarial Pricing:** Telematics normalizes harsh braking, rapid acceleration, speeding, and night driving into an exposure-based Safety Score (0ΓÇô100) with continuous dynamic premium calculation. | **100% Achieved** |
+| **2. Noisy & Incomplete Behavioural Data** | GPS drift, lost packets, or sensor glitches falsely classify safe drivers as aggressive, inflating rates. | **9-Rule Defensive Ingestion & Insufficient Data Gate:** Zod validation drops corrupt telemetry. Trips under 1 km or single readings default safely to baseline (Γé╣2,000) with 0% penalty. | **100% Achieved** |
 | **3. Continuous Monitoring & Privacy Concerns** | Customers fear continuous 24/7 surveillance and third-party data tracking. | **Sovereign Consent Portal & Data Minimization:** DPDP/GDPR-compliant sovereign consent switch embedded directly on `/`. Toggling off telematics immediately halts ingestion; raw GPS coords are stripped. | **100% Achieved** |
 | **4. Unexplained Premium Changes & Customer Distrust** | Opaque black-box AI algorithms modify quotes arbitrarily without explaining why. | **Deterministic Math & Factor Explanations:** Quotes explicitly decompose base rate, telematics adjustments ($\pm 10\%\dots 20\%$), and claim history with human-in-the-loop dispute review (`/review`). | **100% Achieved** |
 | **5. Model Fairness & Dispute Review** | Fault is prematurely pinned on drivers from raw sensor spikes during emergency avoidance. | **Provisional Collision Alert (Fault: UNKNOWN):** Impact $\ge 5.0\text{g}$ creates an unverified alert with **0% surcharge** until a human adjuster investigates on `/review`. | **100% Achieved** |
 
 ---
 
-## 📖 The Humanized Story: Ravi vs. Rahul
+## ≡ƒôû The Humanized Story: Ravi vs. Rahul
 
 To understand why INSURE is revolutionary, compare two 24-year-old delivery riders living in Bangalore on identical 150cc motorcycles:
 
@@ -49,7 +49,7 @@ To understand why INSURE is revolutionary, compare two 24-year-old delivery ride
 +---------------------------------------------------------------------------------------------------+
 |  TRADITIONAL AUTO INSURANCE:                                                                      |
 |  - Ravi and Rahul are both 24-year-old males in Bangalore riding identical 150cc bikes.           |
-|  - Both are charged the EXACT SAME PREMIUM: ₹2,000 / year.                                        |
+|  - Both are charged the EXACT SAME PREMIUM: Γé╣2,000 / year.                                        |
 |  - Ravi drives safely; Rahul drives recklessly. Safe Ravi subsidizes Rahul's reckless behavior!   |
 +---------------------------------------------------------------------------------------------------+
                                               |
@@ -57,21 +57,21 @@ To understand why INSURE is revolutionary, compare two 24-year-old delivery ride
 +---------------------------------------------------------------------------------------------------+
 |  INSURE TELEMATICS & IOT PRICING:                                                                 |
 |                                                                                                   |
-|  🟢 RAVI (Safe, Disciplined Rider)                  🔴 RAHUL (Aggressive, Risky Rider)            |
+|  ≡ƒƒó RAVI (Safe, Disciplined Rider)                  ≡ƒö┤ RAHUL (Aggressive, Risky Rider)            |
 |  - Helmet: ALWAYS ON (Pin 19 = LOW)                 - Helmet: DETACHED (Pin 19 = HIGH)            |
 |  - Speed: 38 km/h in 60 km/h zone                   - Speed: 92 km/h in 60 km/h zone              |
-|  - Accelerometer: 0.12g smooth braking              - Accelerometer: -16.2 m/s² hard stop         |
+|  - Accelerometer: 0.12g smooth braking              - Accelerometer: -16.2 m/s┬▓ hard stop         |
 |  - Alcohol Sensor: 0.00 ppm                         - Alcohol Sensor: 0.42 ppm (Elevated)         |
 |  ---------------------------------                  ---------------------------------             |
 |  Safety Score: 92 / 100 (Tier 1)                    Safety Score: 42 / 100 (Tier 3)               |
 |  Telemetry Adjustment: -10% DISCOUNT                Telemetry Adjustment: +20% SURCHARGE          |
-|  FAIR PREMIUM: ₹1,800 / year (Saves ₹200)           FAIR PREMIUM: ₹2,400 / year (Pays +₹400)      |
+|  FAIR PREMIUM: Γé╣1,800 / year (Saves Γé╣200)           FAIR PREMIUM: Γé╣2,400 / year (Pays +Γé╣400)      |
 +---------------------------------------------------------------------------------------------------+
 ```
 
 ---
 
-## 🏗️ 5-Tier System Architecture
+## ≡ƒÅù∩╕Å 5-Tier System Architecture
 
 ```mermaid
 graph TD
@@ -153,7 +153,7 @@ graph TD
 
 ---
 
-## 🔄 End-to-End Ingestion, Pricing & Dispute Sequence
+## ≡ƒöä End-to-End Ingestion, Pricing & Dispute Sequence
 
 ```mermaid
 sequenceDiagram
@@ -170,7 +170,7 @@ sequenceDiagram
     API->>API: Validate HMAC, deduplicate eventId, check physical bounds
     API->>DB: INSERT into telemetry_readings & update trips
 
-    alt Collision Spike Detected (Impact >= 5.0g or Decel <= -12 m/s²)
+    alt Collision Spike Detected (Impact >= 5.0g or Decel <= -12 m/s┬▓)
         API->>DB: INSERT into accident_records (Fault Status: UNKNOWN, Surcharge: 0%)
         API->>DB: INSERT into audit_logs (IOT_COLLISION_ALERT_CREATED)
     end
@@ -187,49 +187,49 @@ sequenceDiagram
 
 ---
 
-## 🔬 Virtual Hardware Pin Mapping (`diagram.json`)
+## ≡ƒö¼ Virtual Hardware Pin Mapping (`diagram.json`)
 
 The interactive circuit runs live at **[Wokwi Project 478002558874029057](https://wokwi.com/projects/478002558874029057)**:
 
 | Hardware Component | Wokwi Model | ESP32 Pinout | Operational Logic / Physical Meaning |
 |---|---|---|---|
 | **Microcontroller** | ESP32 DevKit V1 | Core Module | 240MHz Dual Core, WiFi Client Secure, HTTP/JSON Gateway |
-| **Accelerometer / Gyro** | MPU-6050 | `SDA -> GPIO 21`<br/>`SCL -> GPIO 22` | I²C 6-DOF sensor reading vehicle acceleration ($m/s^2$) and impact ($g$) |
+| **Accelerometer / Gyro** | MPU-6050 | `SDA -> GPIO 21`<br/>`SCL -> GPIO 22` | I┬▓C 6-DOF sensor reading vehicle acceleration ($m/s^2$) and impact ($g$) |
 | **Helmet Latch Switch** | Slide Switch | `GPIO 19` (Pull-Up) | `LOW (GND)` = Helmet Securely Buckled (Safe)<br/>`HIGH (3.3V)` = No Helmet (Violation) |
-| **Alcohol Breathalyzer** | Rotary Potentiometer | `SIG -> GPIO 34` (ADC1) | Analog voltage `0–4095` mapped linearly to `0.00–0.80 ppm` BAC |
+| **Alcohol Breathalyzer** | Rotary Potentiometer | `SIG -> GPIO 34` (ADC1) | Analog voltage `0ΓÇô4095` mapped linearly to `0.00ΓÇô0.80 ppm` BAC |
 | **Collision Button** | Pushbutton | `GPIO 18` (Active LOW) | Simulates severe road impact ($\ge 7.4g$, Decel: $-18.5 m/s^2$) |
-| **Normal Heartbeat LED** | Green LED | `GPIO 25` (via 220Ω) | Pulses during steady driving & successful HTTP telemetry upload |
-| **Collision Status LED** | Red LED | `GPIO 26` (via 220Ω) | Latches on whenever impact exceeds collision threshold ($\ge 5.0g$) |
+| **Normal Heartbeat LED** | Green LED | `GPIO 25` (via 220╬⌐) | Pulses during steady driving & successful HTTP telemetry upload |
+| **Collision Status LED** | Red LED | `GPIO 26` (via 220╬⌐) | Latches on whenever impact exceeds collision threshold ($\ge 5.0g$) |
 | **Alarm Siren** | Piezo Buzzer | `GPIO 27` (PWM) | Emits 1.2 kHz acoustic siren tone during collision emergencies |
 
-### 🚀 Live Dynamic Sensor Thresholds (No Constant Values)
+### ≡ƒÜÇ Live Dynamic Sensor Thresholds (No Constant Values)
 
 All telemetry readings are dynamically evaluated with real-time reactive feedback:
 - **Speedometer:** Dynamically detects `speed > 60 km/h` as an overspeeding breach, with continuous numerical km/h updates.
-- **MPU6050 Accelerometer:** Real-time acceleration evaluated against harsh braking (`< -3.5 m/s²`), rapid acceleration (`> 3.0 m/s²`), or smooth motion.
+- **MPU6050 Accelerometer:** Real-time acceleration evaluated against harsh braking (`< -3.5 m/s┬▓`), rapid acceleration (`> 3.0 m/s┬▓`), or smooth motion.
 - **Impact Force:** Live G-force tracking; road vibrations (`< 4.5g`) classified as nominal, impacts (`>= 4.5g`) trigger immediate collision alerts.
-- **Helmet Optical Switch:** Hardware Pin 19 dynamically updates between `✓ BUCKLED & VERIFIED` and `⚠ NOT DETECTED (Violation)`.
+- **Helmet Optical Switch:** Hardware Pin 19 dynamically updates between `Γ£ô BUCKLED & VERIFIED` and `ΓÜá NOT DETECTED (Violation)`.
 - **Potentiometer (Alcohol MQ-3):** Dynamically categorizes breath alcohol concentration without hardcoded strings:
-  - `0.00 ppm`: `✓ 0.00 (Zero / Clear)`
-  - `< 0.20 ppm`: `⚠ Trace Alcohol`
-  - `>= 0.20 ppm`: `🚨 Intoxication Alert`
+  - `0.00 ppm`: `Γ£ô 0.00 (Zero / Clear)`
+  - `< 0.20 ppm`: `ΓÜá Trace Alcohol`
+  - `>= 0.20 ppm`: `≡ƒÜ¿ Intoxication Alert`
 - **Fair Dynamic Premium:** Non-constant, continuous actuarial calculations compute exact rupee adjustments rather than flatlining at 0.00%.
 
 ---
 
-## 🧪 Demonstration Scenario Actuarial Reference Matrix
+## ≡ƒº¬ Demonstration Scenario Actuarial Reference Matrix
 
 | Scenario | Inputs & Telemetry Profile | Safety Score | Premium Formula & Adjustment | Fairness Guarantee |
 |---|---|---|---|---|
-| **[A] Safe Commute** | Speed: 38 km/h, Accel: 0.12 m/s², Helmet: ON (`Pin 19 LOW`), Alcohol: 0.00 ppm | **90–95 / 100** (Low Risk) | **₹1,800 / year (-10% Discount)**<br/>Base: ₹2,000 - ₹200 earned discount | Earned discount applied immediately |
-| **[B] Risky Driving** | Speed: 92 km/h, Accel: -16.2 m/s², Helmet: OFF (`Pin 19 HIGH`), Alcohol: 0.42 ppm | **< 50 / 100** (High Risk) | **₹2,400 / year (+20% Surcharge)**<br/>Base: ₹2,000 + ₹400 risk surcharge | Surcharge transparently explained by factor |
-| **[C] Collision Spike** | Pushbutton on `Pin 18` pressed $\to$ 7.42g Impact, Decel: -18.5 m/s² | **Provisional Alert** | **₹2,000 / year (0% Penalty)**<br/>Fault: **UNKNOWN** (Unverified) | No automated surcharge until human review |
+| **[A] Safe Commute** | Speed: 38 km/h, Accel: 0.12 m/s┬▓, Helmet: ON (`Pin 19 LOW`), Alcohol: 0.00 ppm | **90ΓÇô95 / 100** (Low Risk) | **Γé╣1,800 / year (-10% Discount)**<br/>Base: Γé╣2,000 - Γé╣200 earned discount | Earned discount applied immediately |
+| **[B] Risky Driving** | Speed: 92 km/h, Accel: -16.2 m/s┬▓, Helmet: OFF (`Pin 19 HIGH`), Alcohol: 0.42 ppm | **< 50 / 100** (High Risk) | **Γé╣2,400 / year (+20% Surcharge)**<br/>Base: Γé╣2,000 + Γé╣400 risk surcharge | Surcharge transparently explained by factor |
+| **[C] Collision Spike** | Pushbutton on `Pin 18` pressed $\to$ 7.42g Impact, Decel: -18.5 m/s┬▓ | **Provisional Alert** | **Γé╣2,000 / year (0% Penalty)**<br/>Fault: **UNKNOWN** (Unverified) | No automated surcharge until human review |
 | **[D] 2-Vehicle Crash** | Correlated impacts for `INSURE-BIKE-001` and `INSURE-BIKE-002` | **Provisional Incident** | **Neutral Premium**<br/>Distinct event IDs, both faults **UNKNOWN** | Prevents unilateral automated blame |
-| **Moderate Driving** | Mixed driving (e.g. Score 79.0, mild speed variance) | **79.0 / 100** (Moderate Risk) | **₹1,896 / year (-5.2% Discount)**<br/>Continuous actuarial interpolation | Avoids arbitrary flat step-blocks |
+| **Moderate Driving** | Mixed driving (e.g. Score 79.0, mild speed variance) | **79.0 / 100** (Moderate Risk) | **Γé╣1,896 / year (-5.2% Discount)**<br/>Continuous actuarial interpolation | Avoids arbitrary flat step-blocks |
 
 ---
 
-## 📐 Actuarial Calculation Formulas & Mathematical Verification
+## ≡ƒôÉ Actuarial Calculation Formulas & Mathematical Verification
 
 ### 1. Safety Score Formula
 $$\text{Safety Score } S = \max\Big(0, \min\big(100, 100 - (\Delta_{\text{harsh}} + \Delta_{\text{speed}} + \Delta_{\text{night}} + \Delta_{\text{gear}} + \Delta_{\text{substance}})\big)\Big)$$
@@ -245,14 +245,14 @@ $$\text{Safety Score } S = \max\Big(0, \min\big(100, 100 - (\Delta_{\text{harsh}
 $$\text{Final Premium} = \text{Base Premium} \times \big(1 + \text{clamp}(\Delta_{\text{telematics}}, -0.20, +0.20) + \Delta_{\text{claims}}\big)$$
 
 Where:
-- $\text{Base Premium} = ₹2,000.00$
+- $\text{Base Premium} = Γé╣2,000.00$
 - **Continuous Actuarial Mode:**
   $$\Delta_{\text{telematics}} = -(S - 65) \times \frac{10\%}{27}$$
   *(Around neutral benchmark score 65, scores earn proportional discounts up to -10% at score 92, or incur proportional surcharges up to +20% at score 25).*
 - **Tiered Actuarial Mode (Configured Matrix):**
-  - Score 80–100: $\Delta_{\text{telematics}} = -10\%$ (₹1,800)
-  - Score 50–79.99: $\Delta_{\text{telematics}} = 0\%$ (₹2,000)
-  - Score < 50: $\Delta_{\text{telematics}} = +20\%$ (₹2,400)
+  - Score 80ΓÇô100: $\Delta_{\text{telematics}} = -10\%$ (Γé╣1,800)
+  - Score 50ΓÇô79.99: $\Delta_{\text{telematics}} = 0\%$ (Γé╣2,000)
+  - Score < 50: $\Delta_{\text{telematics}} = +20\%$ (Γé╣2,400)
 - **Claim Surcharge ($\Delta_{\text{claims}}$):** $+15\%$ per verified at-fault incident (strictly $0\%$ for provisional/unverified alerts).
 
 ### 3. Statutory Fairness Guarantee
@@ -261,19 +261,19 @@ Where:
 
 ---
 
-## 🧭 Streamlined Role-Based Navigation Architecture
+## ≡ƒº¡ Streamlined Role-Based Navigation Architecture
 
 INSURE enforces strict, role-tailored navigation eliminating clutter:
 
 | Role Portal | Focused Navigation Items | URL Routes | Core Responsibilities & Workflow |
 |---|---|---|---|
-| **🟢 Driver / Policyholder** | 1. **My Policy & Driving**<br/>2. **Trip History**<br/>3. **IoT Live Stream & Sim** | `/`<br/>`/trips`<br/>`/simulator` | View safety score, continuous dynamic quote, 5-factor scorecard, toggle sovereign DPDP consent in 1-click, inspect driving trips, and stream live ESP32 virtual hardware. |
-| **⚖️ Compliance Officer** | 1. **Underwriting Review**<br/>2. **Compliance Overview**<br/>3. **Fairness Audit Log** | `/review`<br/>`/compliance`<br/>`/audit` | Adjudicate customer pricing disputes, review provisional collision alerts (`Fault: UNKNOWN`), monitor demographic parity across cohorts, and inspect the immutable SHA-256 ledger. |
-| **🏢 Insurance Admin** | 1. **Admin Portfolio**<br/>2. **Fairness Audit Trail** | `/admin`<br/>`/audit` | Manage customer account status, publish pricing rule versions, monitor portfolio health, and audit system operations. |
+| **≡ƒƒó Driver / Policyholder** | 1. **My Policy & Driving**<br/>2. **Trip History**<br/>3. **IoT Live Stream & Sim** | `/`<br/>`/trips`<br/>`/simulator` | View safety score, continuous dynamic quote, 5-factor scorecard, toggle sovereign DPDP consent in 1-click, inspect driving trips, and stream live ESP32 virtual hardware. |
+| **ΓÜû∩╕Å Compliance Officer** | 1. **Underwriting Review**<br/>2. **Compliance Overview**<br/>3. **Fairness Audit Log** | `/review`<br/>`/compliance`<br/>`/audit` | Adjudicate customer pricing disputes, review provisional collision alerts (`Fault: UNKNOWN`), monitor demographic parity across cohorts, and inspect the immutable SHA-256 ledger. |
+| **≡ƒÅó Insurance Admin** | 1. **Admin Portfolio**<br/>2. **Fairness Audit Trail** | `/admin`<br/>`/audit` | Manage customer account status, publish pricing rule versions, monitor portfolio health, and audit system operations. |
 
 ---
 
-## 👥 The 4 Real Verified Team Accounts (Zero Dummy Data)
+## ≡ƒæÑ The 4 Real Verified Team Accounts (Zero Dummy Data)
 
 The remote Supabase database contains strictly 4 verified real team accounts. All dummy accounts ("Alice Driver", "demo@insure.test") have been permanently purged:
 
@@ -288,7 +288,7 @@ The remote Supabase database contains strictly 4 verified real team accounts. Al
 
 ---
 
-## 💻 Local Setup, Continuous Testing & Verification
+## ≡ƒÆ╗ Local Setup, Continuous Testing & Verification
 
 ### Prerequisites
 - Node.js v18+ and npm
@@ -333,8 +333,56 @@ npm run build
 
 ---
 
-## 📄 License & Attribution
+## License & Intellectual Property Notice
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.  
+> [!CAUTION]
+> ### ðŸ”’ PROPRIETARY & CONFIDENTIAL INTELLECTUAL PROPERTY â€” ALL RIGHTS RESERVED
+>
+> All rights reserved. This repository, its architecture, source code, workflows, models, and associated documentation are the exclusive intellectual property of **Tharunkumar Kâ„¢**.
+>
+> **STRICT NOTICE:** No individual, organization, institution, or commercial entity is permitted to use, copy, modify, distribute, reproduce, sublicense, reverse-engineer, deploy, or commercially exploit any portion of this project without express, prior written permission from **Tharunkumar K**.
+>
+> **Copyright Â© 2026 Tharunkumar K. All Rights Reserved.**  
+> See the [LICENSE](LICENSE) file for complete legal terms.
+
+This project is licensed under the **MIT License** ΓÇö see the [LICENSE](LICENSE) file for details.  
 Developed by **Team Techsquad** for **SYNAPSE '26**.  
 Copyright (c) 2026 Tharun Kumar & INSURE Contributors.
+
+
+---
+
+## Engineering Author
+
+<table border="0">
+  <tr>
+    <td width="120" align="center" valign="top">
+      <img src="https://github.com/Tharun4743.png" width="100" style="border-radius: 50%;" alt="Tharunkumar K" />
+    </td>
+    <td>
+      <h3>Tharunkumar K</h3>
+      <p>
+        <b>Full Stack Developer & AI Systems Engineer</b><br/>
+        ðŸŽ“ B.Tech in Information Technology â€” <a href="https://vsbec.com"><b>V.S.B. Engineering College, Karur</b></a> (Batch 2024â€“2028)<br/>
+        ðŸŒŸ Recognized for holding the <b>Best GitHub Profile & Top Student Developer</b> at V.S.B. Engineering College (VSBEC)<br/>
+        ðŸ¥‡ <b>Winner â€” Code Thugs 2K26</b> â€¢ ðŸš€ <b>Smart India Hackathon (SIH)</b> Top 50 National Finalist
+      </p>
+      <p>
+        <a href="https://tharunkumark4743.netlify.app/">ðŸŒ Portfolio</a> â€¢
+        <a href="https://github.com/Tharun4743">ðŸ™ GitHub (@Tharun4743)</a> â€¢
+        <a href="https://www.linkedin.com/in/tharunkumark4743">ðŸ’¼ LinkedIn</a> â€¢
+        <a href="https://leetcode.com/u/Tharunkumar__K/">ðŸ§© LeetCode</a> â€¢
+        <a href="mailto:tharunkumark42007@gmail.com">ðŸ“§ Email</a>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- =========================================================================
+   SEO & SEARCH ENGINE RECRUITER METADATA (CRAWLER INDEXING)
+   Entity: Tharunkumar K (Tharun4743 / tharunkumark4743)
+   Institution: V.S.B. Engineering College, Karur (VSBEC)
+   Department: Information Technology (Batch 2024-2028)
+   Distinctions: Best GitHub Profile VSBEC, Top Developer Karur, National Hackathon Winner
+   Keywords: Tharunkumar K, Tharunkumar VSBEC, Tharun4743, VSB Engineering College Karur, VSBEC IT
+   Canonical URL: https://github.com/Tharun4743/insurevsb
+========================================================================= -->
