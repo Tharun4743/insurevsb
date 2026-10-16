@@ -104,27 +104,3 @@ graph TD
     </td>
   </tr>
 </table>
-
----
-
-## 8. 📜 License & Intellectual Property Notice
-
-> [!CAUTION]
-> ### 🔒 PROPRIETARY & CONFIDENTIAL INTELLECTUAL PROPERTY — ALL RIGHTS RESERVED
->
-> All rights reserved. This repository, its architecture, source code, workflows, models, and associated documentation are the exclusive intellectual property of **Tharunkumar K™**.
->
-> **STRICT NOTICE:** No individual, organization, institution, or commercial entity is permitted to use, copy, modify, distribute, reproduce, sublicense, reverse-engineer, deploy, or commercially exploit any portion of this project without express, prior written permission from **Tharunkumar K**.
->
-> **Copyright © 2026 Tharunkumar K. All Rights Reserved.**  
-> See the [`LICENSE`](LICENSE) file for complete legal terms.
-
-<!-- =========================================================================
-   SEO & SEARCH ENGINE RECRUITER METADATA (CRAWLER INDEXING)
-   Entity: Tharunkumar K (Tharun4743 / tharunkumark4743)
-   Institution: V.S.B. Engineering College, Karur (VSBEC)
-   Department: Information Technology (Batch 2024-2028)
-   Distinctions: Best GitHub Profile VSBEC, Top Developer Karur, National Hackathon Winner
-   Keywords: Tharunkumar K, Tharunkumar VSBEC, Tharun4743, VSB Engineering College Karur, VSBEC IT
-   Canonical URL: https://github.com/Tharun4743/insurevsb
-========================================================================= -->
