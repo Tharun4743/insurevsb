@@ -670,11 +670,15 @@ router.get('/telemetry/latest', requireAuth, async (req: any, res: Response, nex
       query = query.eq('vehicle_id', vehicleId);
     }
 
-    const { data: readings, error } = await query.limit(vehicleId ? 1 : 10);
+    const { data: rawReadings, error } = await query.limit(vehicleId ? 5 : 20);
 
     if (error) {
       return next(createError(500, error.message));
     }
+
+    const readings = process.env.NODE_ENV === 'test'
+      ? (rawReadings || [])
+      : (rawReadings || []).filter((r: any) => !r.event_id?.startsWith('evt_test_'));
 
     const latest = readings && readings.length > 0 ? readings[0] : null;
     let assessment = null;
@@ -723,7 +727,7 @@ router.get('/telemetry/:vehicleId', requireAuth, async (req: any, res: Response,
     const vehicleId = req.params.vehicleId;
     const limit = Math.min(parseInt((req.query.limit as string) || '50', 10), 100);
 
-    const { data: readings, error } = await db
+    const { data: rawReadings, error } = await db
       .from('telemetry_readings')
       .select('*')
       .eq('vehicle_id', vehicleId)
@@ -733,6 +737,10 @@ router.get('/telemetry/:vehicleId', requireAuth, async (req: any, res: Response,
     if (error) {
       return next(createError(500, error.message));
     }
+
+    const readings = process.env.NODE_ENV === 'test'
+      ? (rawReadings || [])
+      : (rawReadings || []).filter((r: any) => !r.event_id?.startsWith('evt_test_'));
 
     res.json({
       vehicleId,
@@ -752,7 +760,7 @@ router.get('/alerts', requireAuth, async (req: any, res: Response, next: NextFun
     const db = getClient();
     const limit = Math.min(parseInt((req.query.limit as string) || '50', 10), 100);
 
-    const { data: alerts, error } = await db
+    const { data: rawAlerts, error } = await db
       .from('accident_records')
       .select('*')
       .order('accident_date', { ascending: false })
@@ -761,6 +769,10 @@ router.get('/alerts', requireAuth, async (req: any, res: Response, next: NextFun
     if (error) {
       return next(createError(500, error.message));
     }
+
+    const alerts = process.env.NODE_ENV === 'test'
+      ? (rawAlerts || [])
+      : (rawAlerts || []).filter((a: any) => !a.event_id?.startsWith('evt_test_'));
 
     // Filter or highlight provisional IoT alerts
     const iotAlerts = (alerts || []).map((a: any) => ({

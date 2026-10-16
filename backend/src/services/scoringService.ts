@@ -52,9 +52,10 @@ export function calculateScore(metrics: any, options: any = {}): any {
   const isInsufficient =
     !metrics ||
     (!allowProvisional && metrics.data_confidence === 'insufficient') ||
-    metrics.data_quality_status === 'review_required' ||
+    (!allowProvisional && metrics.data_quality_status === 'review_required') ||
     (!allowProvisional && metrics.total_distance_km != null && metrics.total_distance_km < 1.0) ||
-    (metrics.valid_reading_count != null && metrics.valid_reading_count < 5);
+    (!allowProvisional && metrics.valid_reading_count != null && metrics.valid_reading_count < 5) ||
+    (allowProvisional && metrics.valid_reading_count === 0);
 
   if (isInsufficient) {
     return {

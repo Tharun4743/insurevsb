@@ -46,6 +46,20 @@ export function validateReading(
 ): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
 
+  // Coerce numeric types from database rows if returned as string by pg
+  if (reading.speed_kmh != null && typeof reading.speed_kmh !== 'number') {
+    reading.speed_kmh = Number(reading.speed_kmh);
+  }
+  if (reading.acceleration_ms2 != null && typeof reading.acceleration_ms2 !== 'number') {
+    reading.acceleration_ms2 = Number(reading.acceleration_ms2);
+  }
+  if (reading.distance_km != null && typeof reading.distance_km !== 'number') {
+    reading.distance_km = Number(reading.distance_km);
+  }
+  if (reading.sequence_number != null && typeof reading.sequence_number !== 'number') {
+    reading.sequence_number = Number(reading.sequence_number);
+  }
+
   // ── Required fields ────────────────────────────────────────────────────────
   if (reading.sequence_number == null) {
     issues.push({ field: 'sequence_number', code: 'MISSING_FIELD', severity: 'error' });
